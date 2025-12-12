@@ -1,4 +1,6 @@
 /*-
+ * SPDX-License-Identifier: BSD-2-Clause
+ *
  * Copyright (c) 2008 David Schultz <das@FreeBSD.ORG>
  * All rights reserved.
  *
@@ -24,18 +26,10 @@
  * SUCH DAMAGE.
  */
 
-#include "cdefs-compat.h"
-//__FBSDID("$FreeBSD: src/lib/msun/src/s_rintl.c,v 1.5 2008/02/22 11:59:05 bde Exp $");
-
 #include <float.h>
-#include <openlibm_fenv.h>
-#include <openlibm_math.h>
+#include <math.h>
 
 #include "fpmath.h"
-
-//VBS
-#include "math_private.h"
-
 
 #if LDBL_MAX_EXP != 0x4000
 /* We also require the usual bias, min exp and expsign packing. */
@@ -56,11 +50,11 @@ shift[2] = {
 };
 static const float zero[2] = { 0.0, -0.0 };
 
-OLM_DLLEXPORT long double
+long double
 rintl(long double x)
 {
 	union IEEEl2bits u;
-	u_int32_t expsign;
+	uint32_t expsign;
 	int ex, sign;
 
 	u.e = x;
@@ -93,24 +87,3 @@ rintl(long double x)
 
 	return (x);
 }
-
-/*
- * We save and restore the floating-point environment to avoid raising
- * an inexact exception.  We can get away with using fesetenv()
- * instead of feclearexcept()/feupdateenv() to restore the environment
- * because the only exception defined for rint() is overflow, and
- * rounding can't overflow as long as emax >= p.
- */
-#define	DECL(type, fn, rint)	\
-OLM_DLLEXPORT type				\
-fn(type x)			\
-{				\
-	type ret;		\
-	fenv_t env;		\
-				\
-	fegetenv(&env);		\
-	ret = rint(x);		\
-	fesetenv(&env);		\
-	return (ret);		\
-}
-DECL(long double, nearbyintl, rintl)

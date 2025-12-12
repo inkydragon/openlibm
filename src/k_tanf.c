@@ -13,13 +13,7 @@
  * ====================================================
  */
 
-#ifndef INLINE_KERNEL_TANDF
-#include "cdefs-compat.h"
-//__FBSDID("$FreeBSD: src/lib/msun/src/k_tanf.c,v 1.23 2009/06/03 08:16:34 ed Exp $");
-#endif
-
-#include <openlibm_math.h>
-
+#include "math.h"
 #include "math_private.h"
 
 /* |tan(x)/x - t(x)| < 2**-25.5 (~[-2e-08, 2e-08]). */
@@ -33,11 +27,10 @@ T[] =  {
   0x1362b9bf971bcd.0p-59,	/* 0.00946564784943673166728 */
 };
 
-#ifndef INLINE_KERNEL_TANDF
-extern
+#ifdef INLINE_KERNEL_TANDF
+static __inline
 #endif
-//__inline float
-OLM_DLLEXPORT float
+float
 __kernel_tandf(double x, int iy)
 {
 	double z,r,w,s,t,u;
@@ -52,7 +45,7 @@ __kernel_tandf(double x, int iy)
 	 * We add the small terms from lowest degree up for efficiency on
 	 * non-sequential machines (the lowest degree terms tend to be ready
 	 * earlier).  Apart from this, we don't care about order of
-	 * operations, and don't need to to care since we have precision to
+	 * operations, and don't need to care since we have precision to
 	 * spare.  However, the chosen splitting is good for accuracy too,
 	 * and would give results as accurate as Horner's method if the
 	 * small terms were added from highest degree down.

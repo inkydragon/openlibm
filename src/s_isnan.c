@@ -1,4 +1,6 @@
 /*-
+ * SPDX-License-Identifier: BSD-2-Clause
+ *
  * Copyright (c) 2004 David Schultz <das@FreeBSD.ORG>
  * All rights reserved.
  *
@@ -22,28 +24,32 @@
  * LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
- *
- * $FreeBSD: src/lib/msun/src/s_isnan.c,v 1.9 2010/06/12 17:32:05 das Exp $
  */
 
-#include <openlibm_math.h>
+#include <math.h>
 
 #include "fpmath.h"
-#include "math_private.h"
 
-/* Provided by libc */
-#if 1
-OLM_DLLEXPORT int
-(isnan) (double d)
+/* Provided by libc.so */
+#ifndef PIC
+#undef isnan
+int
+isnan(double d)
 {
 	union IEEEd2bits u;
 
 	u.d = d;
 	return (u.bits.exp == 2047 && (u.bits.manl != 0 || u.bits.manh != 0));
 }
-#endif
+#endif /* !PIC */
 
-OLM_DLLEXPORT int
+/*
+ * Because math.h defines __isnanf as an alias for compatibility with glibc and
+ * CUDA, we have to undefine it here to avoid redefinition errors.
+ */
+#undef __isnanf
+
+int
 __isnanf(float f)
 {
 	union IEEEf2bits u;
@@ -52,8 +58,7 @@ __isnanf(float f)
 	return (u.bits.exp == 255 && u.bits.man != 0);
 }
 
-#ifdef OLM_LONG_DOUBLE
-OLM_DLLEXPORT int
+int
 __isnanl(long double e)
 {
 	union IEEEl2bits u;
@@ -62,6 +67,5 @@ __isnanl(long double e)
 	mask_nbit_l(u);
 	return (u.bits.exp == 32767 && (u.bits.manl != 0 || u.bits.manh != 0));
 }
-#endif
 
-openlibm_weak_reference(__isnanf, isnanf);
+__weak_reference(__isnanf, isnanf);

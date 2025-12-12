@@ -33,8 +33,7 @@
  *	J.T. Conklin (jtc@wimsey.com), Winning Strategies, Inc.
  */
 
-#include <amd64/bsd_asm.h>
-
+#include <machine/asm.h>
 ENTRY(fmodl)
 	fldt	24(%rsp)
 	fldt	8(%rsp)
@@ -46,7 +45,4 @@ ENTRY(fmodl)
 	ret
 END(fmodl)
 
-/* Enable stack protection */
-#if defined(__ELF__)
-.section .note.GNU-stack,"",%progbits
-#endif
+	.section .note.GNU-stack,"",%progbits

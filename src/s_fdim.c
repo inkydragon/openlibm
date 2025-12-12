@@ -1,4 +1,6 @@
 /*-
+ * SPDX-License-Identifier: BSD-2-Clause
+ *
  * Copyright (c) 2004 David Schultz <das@FreeBSD.ORG>
  * All rights reserved.
  *
@@ -24,13 +26,10 @@
  * SUCH DAMAGE.
  */
 
-#include "cdefs-compat.h"
-//__FBSDID("$FreeBSD: src/lib/msun/src/s_fdim.c,v 1.1 2004/06/30 07:04:01 das Exp $");
-#include <openlibm_math.h>
-#include "math_private.h"
+#include <math.h>
 
 #define	DECL(type, fn)			\
-OLM_DLLEXPORT type					\
+type					\
 fn(type x, type y)			\
 {					\
 					\
@@ -43,6 +42,4 @@ fn(type x, type y)			\
 
 DECL(double, fdim)
 DECL(float, fdimf)
-#ifdef OLM_LONG_DOUBLE
 DECL(long double, fdiml)
-#endif

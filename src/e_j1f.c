@@ -13,19 +13,23 @@
  * ====================================================
  */
 
-#include <assert.h>
-#include "cdefs-compat.h"
-#include <openlibm_math.h>
+/*
+ * See e_j1.c for complete comments.
+ */
+
+#include "math.h"
 #include "math_private.h"
 
-static float ponef(float), qonef(float);
+static __inline float ponef(float), qonef(float);
+
+static const volatile float vone = 1, vzero = 0;
 
 static const float
 huge    = 1e30,
 one	= 1.0,
 invsqrtpi=  5.6418961287e-01, /* 0x3f106ebb */
 tpi      =  6.3661974669e-01, /* 0x3f22f983 */
-	/* R0/S0 on [0,2] */
+/* R0/S0 on [0,2] */
 r00  = -6.2500000000e-02, /* 0xbd800000 */
 r01  =  1.4070566976e-03, /* 0x3ab86cfd */
 r02  = -1.5995563444e-05, /* 0xb7862e36 */
@@ -38,8 +42,8 @@ s05  =  1.2354227016e-11; /* 0x2d59567e */
 
 static const float zero    = 0.0;
 
-OLM_DLLEXPORT float
-__ieee754_j1f(float x)
+float
+j1f(float x)
 {
 	float z, s,c,ss,cc,r,u,v,y;
 	int32_t hx,ix;
@@ -49,8 +53,7 @@ __ieee754_j1f(float x)
 	if(ix>=0x7f800000) return one/x;
 	y = fabsf(x);
 	if(ix >= 0x40000000) {	/* |x| >= 2.0 */
-		s = sinf(y);
-		c = cosf(y);
+		sincosf(y, &s, &c);
 		ss = -s-c;
 		cc = s-c;
 		if(ix<0x7f000000) {  /* make sure y+y not overflow */
@@ -95,21 +98,19 @@ static const float V0[5] = {
   1.6655924903e-11, /* 0x2d9281cf */
 };
 
-OLM_DLLEXPORT float
-__ieee754_y1f(float x)
+float
+y1f(float x)
 {
 	float z, s,c,ss,cc,u,v;
 	int32_t hx,ix;
 
 	GET_FLOAT_WORD(hx,x);
         ix = 0x7fffffff&hx;
-    /* if Y1(NaN) is NaN, Y1(-inf) is NaN, Y1(inf) is 0 */
-	if(ix>=0x7f800000) return  one/(x+x*x);
-        if(ix==0) return -one/zero;
-        if(hx<0) return zero/zero;
+	if(ix>=0x7f800000) return  vone/(x+x*x);
+	if(ix==0) return -one/vzero;
+	if(hx<0) return vzero/vzero;
         if(ix >= 0x40000000) {  /* |x| >= 2.0 */
-                s = sinf(x);
-                c = cosf(x);
+                sincosf(x, &s, &c);
                 ss = -s-c;
                 cc = s-c;
                 if(ix<0x7f000000) {  /* make sure x+x not overflow */
@@ -141,7 +142,7 @@ __ieee754_y1f(float x)
         z = x*x;
         u = U0[0]+z*(U0[1]+z*(U0[2]+z*(U0[3]+z*U0[4])));
         v = one+z*(V0[0]+z*(V0[1]+z*(V0[2]+z*(V0[3]+z*V0[4]))));
-        return(x*(u/v) + tpi*(__ieee754_j1f(x)*__ieee754_logf(x)-one/x));
+        return(x*(u/v) + tpi*(j1f(x)*logf(x)-one/x));
 }
 
 /* For x >= 8, the asymptotic expansions of pone is
@@ -218,7 +219,8 @@ static const float ps2[5] = {
   8.3646392822e+00, /* 0x4105d590 */
 };
 
-	static float ponef(float x)
+static __inline float
+ponef(float x)
 {
 	const float *p,*q;
 	float z,r,s;
@@ -314,7 +316,8 @@ static const float qs2[6] = {
  -4.9594988823e+00, /* 0xc09eb437 */
 };
 
-	static float qonef(float x)
+static __inline float
+qonef(float x)
 {
 	const float *p,*q;
 	float  s,r,z;

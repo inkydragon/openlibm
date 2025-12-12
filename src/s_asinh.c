@@ -1,4 +1,3 @@
-/* @(#)s_asinh.c 5.1 93/09/24 */
 /*
  * ====================================================
  * Copyright (C) 1993 by Sun Microsystems, Inc. All rights reserved.
@@ -9,9 +8,6 @@
  * is preserved.
  * ====================================================
  */
-
-#include "cdefs-compat.h"
-//__FBSDID("$FreeBSD: src/lib/msun/src/s_asinh.c,v 1.9 2008/02/22 02:30:35 das Exp $");
 
 /* asinh(x)
  * Method :
@@ -25,8 +21,8 @@
  */
 
 #include <float.h>
-#include <openlibm_math.h>
 
+#include "math.h"
 #include "math_private.h"
 
 static const double
@@ -34,7 +30,7 @@ one =  1.00000000000000000000e+00, /* 0x3FF00000, 0x00000000 */
 ln2 =  6.93147180559945286227e-01, /* 0x3FE62E42, 0xFEFA39EF */
 huge=  1.00000000000000000000e+300;
 
-OLM_DLLEXPORT double
+double
 asinh(double x)
 {
 	double t,w;
@@ -46,17 +42,17 @@ asinh(double x)
 	    if(huge+x>one) return x;	/* return x inexact except 0 */
 	}
 	if(ix>0x41b00000) {	/* |x| > 2**28 */
-	    w = __ieee754_log(fabs(x))+ln2;
+	    w = log(fabs(x))+ln2;
 	} else if (ix>0x40000000) {	/* 2**28 > |x| > 2.0 */
 	    t = fabs(x);
-	    w = __ieee754_log(2.0*t+one/(__ieee754_sqrt(x*x+one)+t));
+	    w = log(2.0*t+one/(sqrt(x*x+one)+t));
 	} else {		/* 2.0 > |x| > 2**-28 */
 	    t = x*x;
-	    w =log1p(fabs(x)+t/(one+__ieee754_sqrt(one+t)));
+	    w =log1p(fabs(x)+t/(one+sqrt(one+t)));
 	}
 	if(hx>0) return w; else return -w;
 }
 
-#if (LDBL_MANT_DIG == 53)
-openlibm_weak_reference(asinh, asinhl);
+#if LDBL_MANT_DIG == 53
+__weak_reference(asinh, asinhl);
 #endif

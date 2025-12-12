@@ -28,9 +28,7 @@
  * Based on public-domain remainder routine by J.T. Conklin <jtc@NetBSD.org>.
  */
 
-#include <i387/bsd_asm.h>
-//__FBSDID("$FreeBSD: src/lib/msun/i387/s_remquol.S,v 1.2 2011/01/07 16:13:12 kib Exp $"); 
-	
+#include <machine/asm.h>
 ENTRY(remquol)
 	fldt	16(%esp)
 	fldt	4(%esp)
@@ -61,9 +59,6 @@ ENTRY(remquol)
 	movl	28(%esp),%ecx
 	movl	%eax,(%ecx)
 	ret
+END(remquol)
 
-	
-/* Enable stack protection */
-#if defined(__ELF__)
-.section .note.GNU-stack,"",%progbits
-#endif
+	.section .note.GNU-stack,"",%progbits

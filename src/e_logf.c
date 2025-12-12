@@ -13,11 +13,7 @@
  * ====================================================
  */
 
-#include "cdefs-compat.h"
-//__FBSDID("$FreeBSD: src/lib/msun/src/e_logf.c,v 1.11 2008/03/29 16:37:59 das Exp $");
-
-#include <openlibm_math.h>
-
+#include "math.h"
 #include "math_private.h"
 
 static const float
@@ -31,9 +27,10 @@ Lg3 =      0x91e9ee.0p-25,	/* 0.28498786688 */
 Lg4 =      0xf89e26.0p-26;	/* 0.24279078841 */
 
 static const float zero   =  0.0;
+static volatile float vzero = 0.0;
 
-OLM_DLLEXPORT float
-__ieee754_logf(float x)
+float
+logf(float x)
 {
 	float hfsq,f,s,z,R,w,t1,t2,dk;
 	int32_t k,ix,i,j;
@@ -43,7 +40,7 @@ __ieee754_logf(float x)
 	k=0;
 	if (ix < 0x00800000) {			/* x < 2**-126  */
 	    if ((ix&0x7fffffff)==0)
-		return -two25/zero;		/* log(+-0)=-inf */
+		return -two25/vzero;		/* log(+-0)=-inf */
 	    if (ix<0) return (x-x)/zero;	/* log(-#) = NaN */
 	    k -= 25; x *= two25; /* subnormal number, scale up x */
 	    GET_FLOAT_WORD(ix,x);

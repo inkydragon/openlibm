@@ -13,17 +13,13 @@
  * ====================================================
  */
 
-#include "cdefs-compat.h"
-//__FBSDID("$FreeBSD: src/lib/msun/src/e_coshf.c,v 1.9 2011/10/21 06:28:47 das Exp $");
-
-#include <openlibm_math.h>
-
+#include "math.h"
 #include "math_private.h"
 
 static const float one = 1.0, half=0.5, huge = 1.0e30;
 
-OLM_DLLEXPORT float
-__ieee754_coshf(float x)
+float
+coshf(float x)
 {
 	float t,w;
 	int32_t ix;
@@ -44,12 +40,12 @@ __ieee754_coshf(float x)
 
     /* |x| in [0.5*ln2,9], return (exp(|x|)+1/exp(|x|))/2; */
 	if (ix < 0x41100000) {
-		t = __ieee754_expf(fabsf(x));
+		t = expf(fabsf(x));
 		return half*t+half/t;
 	}
 
     /* |x| in [9, log(maxfloat)] return half*exp(|x|) */
-	if (ix < 0x42b17217)  return half*__ieee754_expf(fabsf(x));
+	if (ix < 0x42b17217)  return half*expf(fabsf(x));
 
     /* |x| in [log(maxfloat), overflowthresold] */
 	if (ix<=0x42b2d4fc)

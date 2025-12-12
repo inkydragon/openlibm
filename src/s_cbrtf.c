@@ -14,11 +14,7 @@
  * ====================================================
  */
 
-#include "cdefs-compat.h"
-//__FBSDID("$FreeBSD: src/lib/msun/src/s_cbrtf.c,v 1.18 2008/02/22 02:30:35 das Exp $");
-
-#include <openlibm_math.h>
-
+#include "math.h"
 #include "math_private.h"
 
 /* cbrtf(x)
@@ -28,7 +24,7 @@ static const unsigned
 	B1 = 709958130, /* B1 = (127-127.0/3-0.03306235651)*2**23 */
 	B2 = 642849266; /* B2 = (127-127.0/3-24/3-0.03306235651)*2**23 */
 
-OLM_DLLEXPORT float
+float
 cbrtf(float x)
 {
 	double r,T;
@@ -54,7 +50,7 @@ cbrtf(float x)
 	    SET_FLOAT_WORD(t,sign|(hx/3+B1));
 
     /*
-     * First step Newton iteration (solving t*t-x/t == 0) to 16 bits.  In
+     * First step Halley iteration (solving t*t-x/t == 0) to 16 bits.  In
      * double precision so that its terms can be arranged for efficiency
      * without causing overflow or underflow.
      */
@@ -63,7 +59,7 @@ cbrtf(float x)
 	T=T*((double)x+x+r)/(x+r+r);
 
     /*
-     * Second step Newton iteration to 47 bits.  In double precision for
+     * Second step Halley iteration to 47 bits.  In double precision for
      * efficiency and accuracy.
      */
 	r=T*T*T;

@@ -13,18 +13,14 @@
  * ====================================================
  */
 
-#include "cdefs-compat.h"
-//__FBSDID("$FreeBSD: src/lib/msun/src/e_expf.c,v 1.16 2011/10/21 06:26:38 das Exp $");
-
 #include <float.h>
-#include <openlibm_math.h>
 
+#include "math.h"
 #include "math_private.h"
 
 static const float
 one	= 1.0,
 halF[2]	= {0.5,-0.5,},
-huge	= 1.0e+30,
 o_threshold=  8.8721679688e+01,  /* 0x42b17180 */
 u_threshold= -1.0397208405e+02,  /* 0xc2cff1b5 */
 ln2HI[2]   ={ 6.9314575195e-01,		/* 0x3f317200 */
@@ -39,10 +35,12 @@ invln2 =  1.4426950216e+00, 		/* 0x3fb8aa3b */
 P1 =  1.6666625440e-1,		/*  0xaaaa8f.0p-26 */
 P2 = -2.7667332906e-3;		/* -0xb55215.0p-32 */
 
-static volatile float twom100 = 7.8886090522e-31;      /* 2**-100=0x0d800000 */
+static volatile float
+huge	= 1.0e+30,
+twom100 = 7.8886090522e-31;      /* 2**-100=0x0d800000 */
 
-OLM_DLLEXPORT float
-__ieee754_expf(float x)
+float
+expf(float x)
 {
 	float y,hi=0.0,lo=0.0,c,t,twopk;
 	int32_t k=0,xsb;
@@ -82,9 +80,9 @@ __ieee754_expf(float x)
     /* x is now in primary range */
 	t  = x*x;
 	if(k >= -125)
-	    SET_FLOAT_WORD(twopk,0x3f800000+(k<<23));
+	    SET_FLOAT_WORD(twopk,((u_int32_t)(0x7f+k))<<23);
 	else
-	    SET_FLOAT_WORD(twopk,0x3f800000+((k+100)<<23));
+	    SET_FLOAT_WORD(twopk,((u_int32_t)(0x7f+(k+100)))<<23);
 	c  = x - t*(P1+t*P2);
 	if(k==0) 	return one-((x*c)/(c-(float)2.0)-x);
 	else 		y = one-((lo-(x*c)/((float)2.0-c))-hi);

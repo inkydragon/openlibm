@@ -1,5 +1,4 @@
 
-/* @(#)e_sqrt.c 1.3 95/01/18 */
 /*
  * ====================================================
  * Copyright (C) 1993 by Sun Microsystems, Inc. All rights reserved.
@@ -11,10 +10,19 @@
  * ====================================================
  */
 
-#include "cdefs-compat.h"
-//__FBSDID("$FreeBSD: src/lib/msun/src/e_sqrt.c,v 1.11 2008/03/02 01:47:58 das Exp $");
+#include <float.h>
 
-/* __ieee754_sqrt(x)
+#include "math.h"
+#include "math_private.h"
+
+#ifdef USE_BUILTIN_SQRT
+double
+sqrt(double x)
+{
+	return (__builtin_sqrt(x));
+}
+#else
+/* sqrt(x)
  * Return correctly rounded sqrt.
  *           ------------------------------------------
  *	     |  Use the hardware sqrt if you have one |
@@ -84,15 +92,10 @@
  *---------------
  */
 
-#include <float.h>
-#include <openlibm_math.h>
-
-#include "math_private.h"
-
 static	const double	one	= 1.0, tiny=1.0e-300;
 
-OLM_DLLEXPORT double
-__ieee754_sqrt(double x)
+double
+sqrt(double x)
 {
 	double z;
 	int32_t sign = (int)0x80000000;
@@ -187,9 +190,10 @@ __ieee754_sqrt(double x)
 	INSERT_WORDS(z,ix0,ix1);
 	return z;
 }
+#endif
 
 #if (LDBL_MANT_DIG == 53)
-openlibm_weak_reference(sqrt, sqrtl);
+__weak_reference(sqrt, sqrtl);
 #endif
 
 /*

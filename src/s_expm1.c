@@ -1,4 +1,3 @@
-/* @(#)s_expm1.c 5.1 93/09/24 */
 /*
  * ====================================================
  * Copyright (C) 1993 by Sun Microsystems, Inc. All rights reserved.
@@ -9,9 +8,6 @@
  * is preserved.
  * ====================================================
  */
-
-#include "cdefs-compat.h"
-//__FBSDID("$FreeBSD: src/lib/msun/src/s_expm1.c,v 1.12 2011/10/21 06:26:38 das Exp $");
 
 /* expm1(x)
  * Returns exp(x)-1, the exponential of x minus 1.
@@ -109,13 +105,12 @@
  */
 
 #include <float.h>
-#include <openlibm_math.h>
 
+#include "math.h"
 #include "math_private.h"
 
 static const double
 one		= 1.0,
-huge		= 1.0e+300,
 tiny		= 1.0e-300,
 o_threshold	= 7.09782712893383973096e+02,/* 0x40862E42, 0xFEFA39EF */
 ln2_hi		= 6.93147180369123816490e-01,/* 0x3fe62e42, 0xfee00000 */
@@ -128,7 +123,9 @@ Q3  =  -7.93650757867487942473e-05, /* BF14CE19 9EAADBB7 */
 Q4  =   4.00821782732936239552e-06, /* 3ED0CFCA 86E65239 */
 Q5  =  -2.01099218183624371326e-07; /* BE8AFDB7 6E09C32D */
 
-OLM_DLLEXPORT double
+static volatile double huge = 1.0e+300;
+
+double
 expm1(double x)
 {
 	double y,hi,lo,c,t,e,hxs,hfx,r1,twopk;
@@ -147,7 +144,7 @@ expm1(double x)
 		    GET_LOW_WORD(low,x);
 		    if(((hx&0xfffff)|low)!=0)
 		         return x+x; 	 /* NaN */
-		    else return (xsb==0)? x:-1.0;/* exp(+-inf)-1={inf,-1} */
+		    else return (xsb==0)? x:-1.0;/* exp(+-inf)={inf,-1} */
 	        }
 	        if(x > o_threshold) return huge*huge; /* overflow */
 	    }
@@ -187,7 +184,7 @@ expm1(double x)
 	e  = hxs*((r1-t)/(6.0 - x*t));
 	if(k==0) return x - (x*e-hxs);		/* c is 0 */
 	else {
-	    INSERT_WORDS(twopk,0x3ff00000+(k<<20),0);	/* 2^k */
+	    INSERT_WORDS(twopk,((u_int32_t)(0x3ff+k))<<20,0);	/* 2^k */
 	    e  = (x*(e-c)-c);
 	    e -= hxs;
 	    if(k== -1) return 0.5*(x-e)-0.5;
@@ -217,5 +214,5 @@ expm1(double x)
 }
 
 #if (LDBL_MANT_DIG == 53)
-openlibm_weak_reference(expm1, expm1l);
+__weak_reference(expm1, expm1l);
 #endif

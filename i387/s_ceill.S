@@ -3,9 +3,7 @@
  * Public domain.
  */
 	
-#include <i387/bsd_asm.h>
-//__FBSDID("$FreeBSD: src/lib/msun/i387/s_ceill.S,v 1.3 2011/01/07 16:13:12 kib Exp $")
-
+#include <machine/asm.h>
 ENTRY(ceill)
 	pushl	%ebp
 	movl	%esp,%ebp
@@ -16,7 +14,7 @@ ENTRY(ceill)
 	orw	$0x0800,%dx		/* round towards +oo */
 	andw	$0xfbff,%dx
 	movw	%dx,-8(%ebp)
-	fldcw	-8(%ebp)		/* load modfied control word */
+	fldcw	-8(%ebp)		/* load modified control word */
 
 	fldt	8(%ebp)			/* round */
 	frndint
@@ -27,8 +25,4 @@ ENTRY(ceill)
 	ret
 END(ceill)
 
-	
-/* Enable stack protection */
-#if defined(__ELF__)
-.section .note.GNU-stack,"",%progbits
-#endif
+	.section .note.GNU-stack,"",%progbits

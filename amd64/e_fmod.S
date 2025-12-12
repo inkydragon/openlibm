@@ -33,8 +33,7 @@
  *	J.T. Conklin (jtc@wimsey.com), Winning Strategies, Inc.
  */
 
-#include <amd64/bsd_asm.h>
-
+#include <machine/asm.h>
 ENTRY(fmod)
 	movsd	%xmm0,-8(%rsp)
 	movsd	%xmm1,-16(%rsp)
@@ -50,7 +49,4 @@ ENTRY(fmod)
 	ret
 END(fmod)
 
-/* Enable stack protection */
-#if defined(__ELF__)
-.section .note.GNU-stack,"",%progbits
-#endif
+	.section .note.GNU-stack,"",%progbits

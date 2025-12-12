@@ -13,15 +13,12 @@
  * ====================================================
  */
 
-#include "cdefs-compat.h"
-//__FBSDID("$FreeBSD: src/lib/msun/src/s_ilogbf.c,v 1.8 2008/02/22 02:30:35 das Exp $");
-
 #include <limits.h>
-#include <openlibm_math.h>
 
+#include "math.h"
 #include "math_private.h"
 
-OLM_DLLEXPORT int
+int
 ilogbf(float x)
 {
 	int32_t hx,ix;
@@ -32,7 +29,7 @@ ilogbf(float x)
 	    if(hx==0)
 		return FP_ILOGB0;
 	    else			/* subnormal x */
-	        for (ix = -126,hx<<=8; hx>0; hx<<=1) ix -=1;
+		ix = subnormal_ilogbf(hx);
 	    return ix;
 	}
 	else if (hx<0x7f800000) return (hx>>23)-127;

@@ -1,4 +1,6 @@
 /*-
+ * SPDX-License-Identifier: BSD-2-Clause
+ *
  * Copyright (c) 2004 David Schultz <das@FreeBSD.ORG>
  * All rights reserved.
  *
@@ -24,15 +26,19 @@
  * SUCH DAMAGE.
  */
 
-#include "cdefs-compat.h"
-//__FBSDID("$FreeBSD: src/lib/msun/src/s_fmax.c,v 1.1 2004/06/30 07:04:01 das Exp $");
-
-#include <openlibm_math.h>
+#include <float.h>
+#include <math.h>
 
 #include "fpmath.h"
-#include "math_private.h"
 
-OLM_DLLEXPORT double
+#ifdef USE_BUILTIN_FMAX
+double
+fmax(double x, double y)
+{
+	return (__builtin_fmax(x, y));
+}
+#else
+double
 fmax(double x, double y)
 {
 	union IEEEd2bits u[2];
@@ -52,3 +58,8 @@ fmax(double x, double y)
 
 	return (x > y ? x : y);
 }
+#endif
+
+#if (LDBL_MANT_DIG == 53)
+__weak_reference(fmax, fmaxl);
+#endif

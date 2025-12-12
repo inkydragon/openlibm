@@ -1,5 +1,4 @@
 
-/* @(#)e_remainder.c 1.3 95/01/18 */
 /*
  * ====================================================
  * Copyright (C) 1993 by Sun Microsystems, Inc. All rights reserved.
@@ -11,10 +10,7 @@
  * ====================================================
  */
 
-#include "cdefs-compat.h"
-//__FBSDID("$FreeBSD: src/lib/msun/src/e_remainder.c,v 1.12 2008/03/30 20:47:42 das Exp $");
-
-/* __ieee754_remainder(x,p)
+/* remainder(x,p)
  * Return :                  
  * 	returns  x REM p  =  x - [x/p]*p as if in infinite 
  * 	precise arithmetic, where [x/p] is the (infinite bit) 
@@ -24,15 +20,15 @@
  */
 
 #include <float.h>
-#include <openlibm_math.h>
 
+#include "math.h"
 #include "math_private.h"
 
 static const double zero = 0.0;
 
 
-OLM_DLLEXPORT double
-__ieee754_remainder(double x, double p)
+double
+remainder(double x, double p)
 {
 	int32_t hx,hp;
 	u_int32_t sx,lx,lp;
@@ -45,14 +41,14 @@ __ieee754_remainder(double x, double p)
 	hx &= 0x7fffffff;
 
     /* purge off exception values */
-	if((hp|lp)==0) return (x*p)/(x*p); 	/* p = 0 */
-	if((hx>=0x7ff00000)||			/* x not finite */
+	if(((hp|lp)==0)||		 	/* p = 0 */
+	  (hx>=0x7ff00000)||			/* x not finite */
 	  ((hp>=0x7ff00000)&&			/* p is NaN */
 	  (((hp-0x7ff00000)|lp)!=0)))
-	    return ((long double)x*p)/((long double)x*p);
+	    return nan_mix_op(x, p, *)/nan_mix_op(x, p, *);
 
 
-	if (hp<=0x7fdfffff) x = __ieee754_fmod(x,p+p);	/* now x < 2p */
+	if (hp<=0x7fdfffff) x = fmod(x,p+p);	/* now x < 2p */
 	if (((hx-hp)|(lx-lp))==0) return zero*x;
 	x  = fabs(x);
 	p  = fabs(p);
@@ -68,12 +64,12 @@ __ieee754_remainder(double x, double p)
 		if(x>=p_half) x -= p;
 	    }
 	}
-	GET_HIGH_WORD(hx,x);
-	if ((hx&0x7fffffff)==0) hx = 0;
+	EXTRACT_WORDS(hx, lx, x);
+	if (((hx&0x7fffffff)|lx) == 0) hx = 0;
 	SET_HIGH_WORD(x,hx^sx);
 	return x;
 }
 
 #if LDBL_MANT_DIG == 53
-openlibm_weak_reference(remainder, remainderl);
+__weak_reference(remainder, remainderl);
 #endif

@@ -1,4 +1,3 @@
-/* @(#)e_fmod.c 1.3 95/01/18 */
 /*-
  * ====================================================
  * Copyright (C) 1993 by Sun Microsystems, Inc. All rights reserved.
@@ -10,11 +9,7 @@
  * ====================================================
  */
 
-#include "cdefs-compat.h"
-//__FBSDID("$FreeBSD: src/lib/msun/src/s_remquof.c,v 1.1 2005/03/25 04:40:44 das Exp $");
-
-#include <openlibm_math.h>
-
+#include "math.h"
 #include "math_private.h"
 
 static const float Zero[] = {0.0, -0.0,};
@@ -27,10 +22,10 @@ static const float Zero[] = {0.0, -0.0,};
  * method.  In practice, this is far more bits than are needed to use
  * remquo in reduction algorithms.
  */
-OLM_DLLEXPORT float
+float
 remquof(float x, float y, int *quo)
 {
-	int32_t n,hx,hy,hz,ix,iy,sx,i;
+	int32_t hx, hy, hz, ix, iy, n, sx;
 	u_int32_t q,sxy;
 
 	GET_FLOAT_WORD(hx,x);
@@ -42,7 +37,7 @@ remquof(float x, float y, int *quo)
 
     /* purge off exception values */
 	if(hy==0||hx>=0x7f800000||hy>0x7f800000) /* y=0,NaN;or x not finite */
-	    return (x*y)/(x*y);
+	    return nan_mix_op(x, y, *)/nan_mix_op(x, y, *);
 	if(hx<hy) {
 	    q = 0;
 	    goto fixup;	/* |x|<|y| return x or x-y */
@@ -52,14 +47,16 @@ remquof(float x, float y, int *quo)
 	}
 
     /* determine ix = ilogb(x) */
-	if(hx<0x00800000) {	/* subnormal x */
-	    for (ix = -126,i=(hx<<8); i>0; i<<=1) ix -=1;
-	} else ix = (hx>>23)-127;
+	if(hx<0x00800000)
+	    ix = subnormal_ilogbf(hx);
+	else
+	    ix = (hx>>23)-127;
 
     /* determine iy = ilogb(y) */
-	if(hy<0x00800000) {	/* subnormal y */
-	    for (iy = -126,i=(hy<<8); i>0; i<<=1) iy -=1;
-	} else iy = (hy>>23)-127;
+	if(hy<0x00800000)
+	    iy = subnormal_ilogbf(hy);
+	else
+	    iy = (hy>>23)-127;
 
     /* set up {hx,lx}, {hy,ly} and align y to x */
 	if(ix >= -126)

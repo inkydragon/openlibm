@@ -1,4 +1,6 @@
 /*-
+ * SPDX-License-Identifier: BSD-2-Clause
+ *
  * Copyright (c) 2003, Steven G. Kargl
  * All rights reserved.
  *
@@ -24,14 +26,12 @@
  * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "cdefs-compat.h"
-//__FBSDID("$FreeBSD: src/lib/msun/src/s_round.c,v 1.4 2005/12/02 13:45:06 bde Exp $");
+#include <float.h>
 
-#include <openlibm_math.h>
-
+#include "math.h"
 #include "math_private.h"
 
-OLM_DLLEXPORT double
+double
 round(double x)
 {
 	double t;
@@ -53,3 +53,7 @@ round(double x)
 		return (-t);
 	}
 }
+
+#if (LDBL_MANT_DIG == 53)
+__weak_reference(round, roundl);
+#endif

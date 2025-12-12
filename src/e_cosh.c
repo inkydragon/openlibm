@@ -1,5 +1,4 @@
 
-/* @(#)e_cosh.c 1.3 95/01/18 */
 /*
  * ====================================================
  * Copyright (C) 1993 by Sun Microsystems, Inc. All rights reserved.
@@ -11,10 +10,7 @@
  * ====================================================
  */
 
-#include "cdefs-compat.h"
-//__FBSDID("$FreeBSD: src/lib/msun/src/e_cosh.c,v 1.10 2011/10/21 06:28:47 das Exp $");
-
-/* __ieee754_cosh(x)
+/* cosh(x)
  * Method : 
  * mathematically cosh(x) if defined to be (exp(x)+exp(-x))/2
  *	1. Replace x by |x| (cosh(x) = cosh(-x)). 
@@ -36,14 +32,14 @@
  */
 
 #include <float.h>
-#include <openlibm_math.h>
 
+#include "math.h"
 #include "math_private.h"
 
 static const double one = 1.0, half=0.5, huge = 1.0e300;
 
-OLM_DLLEXPORT double
-__ieee754_cosh(double x)
+double
+cosh(double x)
 {
 	double t,w;
 	int32_t ix;
@@ -65,12 +61,12 @@ __ieee754_cosh(double x)
 
     /* |x| in [0.5*ln2,22], return (exp(|x|)+1/exp(|x|)/2; */
 	if (ix < 0x40360000) {
-		t = __ieee754_exp(fabs(x));
+		t = exp(fabs(x));
 		return half*t+half/t;
 	}
 
     /* |x| in [22, log(maxdouble)] return half*exp(|x|) */
-	if (ix < 0x40862E42)  return half*__ieee754_exp(fabs(x));
+	if (ix < 0x40862E42)  return half*exp(fabs(x));
 
     /* |x| in [log(maxdouble), overflowthresold] */
 	if (ix<=0x408633CE)
@@ -81,5 +77,5 @@ __ieee754_cosh(double x)
 }
 
 #if (LDBL_MANT_DIG == 53)
-openlibm_weak_reference(cosh, coshl);
+__weak_reference(cosh, coshl);
 #endif

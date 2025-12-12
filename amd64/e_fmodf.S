@@ -3,8 +3,7 @@
  * Public domain.
  */
 
-#include <amd64/bsd_asm.h>
-
+#include <machine/asm.h>
 ENTRY(fmodf)
 	movss	%xmm0,-4(%rsp)
 	movss	%xmm1,-8(%rsp)
@@ -20,7 +19,4 @@ ENTRY(fmodf)
 	ret
 END(fmodf)
 
-/* Enable stack protection */
-#if defined(__ELF__)
-.section .note.GNU-stack,"",%progbits
-#endif
+	.section .note.GNU-stack,"",%progbits

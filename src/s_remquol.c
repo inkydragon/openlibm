@@ -1,4 +1,3 @@
-/* @(#)e_fmod.c 1.3 95/01/18 */
 /*-
  * ====================================================
  * Copyright (C) 1993 by Sun Microsystems, Inc. All rights reserved.
@@ -10,28 +9,25 @@
  * ====================================================
  */
 
-#include "cdefs-compat.h"
-//__FBSDID("$FreeBSD: src/lib/msun/src/s_remquol.c,v 1.2 2008/07/31 20:09:47 das Exp $");
-
 #include <float.h>
-#include <openlibm_math.h>
 #include <stdint.h>
 
 #include "fpmath.h"
+#include "math.h"
 #include "math_private.h"
 
 #define	BIAS (LDBL_MAX_EXP - 1)
 
 #if LDBL_MANL_SIZE > 32
-typedef	u_int64_t manl_t;
+typedef	uint64_t manl_t;
 #else
-typedef	u_int32_t manl_t;
+typedef	uint32_t manl_t;
 #endif
 
 #if LDBL_MANH_SIZE > 32
-typedef	u_int64_t manh_t;
+typedef	uint64_t manh_t;
 #else
-typedef	u_int32_t manh_t;
+typedef	uint32_t manh_t;
 #endif
 
 /*
@@ -64,7 +60,7 @@ static const long double Zero[] = {0.0L, -0.0L};
  * - The high part of the mantissa fits in an int64_t with enough room
  *   for an explicit integer bit in front of the fractional bits.
  */
-OLM_DLLEXPORT long double
+long double
 remquol(long double x, long double y, int *quo)
 {
 	union IEEEl2bits ux, uy;
@@ -79,14 +75,13 @@ remquol(long double x, long double y, int *quo)
 	sxy = sx ^ uy.bits.sign;
 	ux.bits.sign = 0;	/* |x| */
 	uy.bits.sign = 0;	/* |y| */
-	x = ux.e;
 
     /* purge off exception values */
 	if((uy.bits.exp|uy.bits.manh|uy.bits.manl)==0 || /* y=0 */
 	   (ux.bits.exp == BIAS + LDBL_MAX_EXP) ||	 /* or x not finite */
 	   (uy.bits.exp == BIAS + LDBL_MAX_EXP &&
 	    ((uy.bits.manh&~LDBL_NBIT)|uy.bits.manl)!=0)) /* or y is NaN */
-	    return (x*y)/(x*y);
+	    return nan_mix_op(x, y, *)/nan_mix_op(x, y, *);
 	if(ux.bits.exp<=uy.bits.exp) {
 	    if((ux.bits.exp<uy.bits.exp) ||
 	       (ux.bits.manh<=uy.bits.manh &&
@@ -126,7 +121,6 @@ remquol(long double x, long double y, int *quo)
     /* fix point fmod */
 	n = ix - iy;
 	q = 0;
-
 	while(n--) {
 	    hz=hx-hy;lz=lx-ly; if(lx<ly) hz -= 1;
 	    if(hz<0){hx = hx+hx+(lx>>MANL_SHIFT); lx = lx+lx;}
@@ -154,9 +148,8 @@ remquol(long double x, long double y, int *quo)
 	} else {
 	    ux.bits.exp = iy + BIAS;
 	}
-	ux.bits.sign = 0;
-	x = ux.e;
 fixup:
+	x = ux.e;		/* |x| */
 	y = fabsl(y);
 	if (y < LDBL_MIN * 2) {
 	    if (x+x>y || (x+x==y && (q & 1))) {
@@ -167,11 +160,9 @@ fixup:
 	    q++;
 	    x-=y;
 	}
-
 	ux.e = x;
 	ux.bits.sign ^= sx;
 	x = ux.e;
-
 	q &= 0x7fffffff;
 	*quo = (sxy ? -q : q);
 	return x;

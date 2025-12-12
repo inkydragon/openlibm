@@ -1,4 +1,6 @@
 /*-
+ * SPDX-License-Identifier: BSD-2-Clause
+ *
  * Copyright (c) 2005-2011 David Schultz <das@FreeBSD.ORG>
  * All rights reserved.
  *
@@ -24,15 +26,11 @@
  * SUCH DAMAGE.
  */
 
-#include "cdefs-compat.h"
-//__FBSDID("$FreeBSD: src/lib/msun/src/s_fmal.c,v 1.7 2011/10/21 06:30:43 das Exp $");
-
+#include <fenv.h>
 #include <float.h>
-#include <openlibm_fenv.h>
-#include <openlibm_math.h>
+#include <math.h>
 
 #include "fpmath.h"
-#include "math_private.h"
 
 /*
  * A struct dd represents a floating-point number with twice the precision
@@ -163,7 +161,7 @@ dd_mul(long double a, long double b)
  *	Dekker, T.  A Floating-Point Technique for Extending the
  *	Available Precision.  Numer. Math. 18, 224-242 (1971).
  */
-OLM_DLLEXPORT long double
+long double
 fmal(long double x, long double y, long double z)
 {
 	long double xs, ys, zs, adj;
@@ -227,6 +225,8 @@ fmal(long double x, long double y, long double z)
 		zs = copysignl(LDBL_MIN, zs);
 
 	fesetround(FE_TONEAREST);
+	/* work around clang issue #8472 */
+	volatile long double vxs = xs;
 
 	/*
 	 * Basic approach for round-to-nearest:
@@ -236,19 +236,19 @@ fmal(long double x, long double y, long double z)
 	 *     adj = xy.lo + r.lo		(inexact; low bit is sticky)
 	 *     result = r.hi + adj		(correctly rounded)
 	 */
-	xy = dd_mul(xs, ys);
+	xy = dd_mul(vxs, ys);
 	r = dd_add(xy.hi, zs);
 
 	spread = ex + ey;
 
-	if (r.hi == 0.0) {
+	if (r.hi == 0.0 && xy.lo == 0) {
 		/*
 		 * When the addends cancel to 0, ensure that the result has
 		 * the correct sign.
 		 */
 		fesetround(oround);
 		volatile long double vzs = zs; /* XXX gcc CSE bug workaround */
-		return (xy.hi + vzs + ldexpl(xy.lo, spread));
+		return (xy.hi + vzs);
 	}
 
 	if (oround != FE_TONEAREST) {
@@ -257,7 +257,9 @@ fmal(long double x, long double y, long double z)
 		 * rounding modes.
 		 */
 		fesetround(oround);
-		adj = r.lo + xy.lo;
+		/* work around clang issue #8472 */
+		volatile long double vrlo = r.lo;
+		adj = vrlo + xy.lo;
 		return (ldexpl(r.hi + adj, spread));
 	}
 

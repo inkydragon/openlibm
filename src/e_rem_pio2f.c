@@ -14,9 +14,6 @@
  * ====================================================
  */
 
-#include "cdefs-compat.h"
-//__FBSDID("$FreeBSD: src/lib/msun/src/e_rem_pio2f.c,v 1.32 2009/06/03 08:16:34 ed Exp $");
-
 /* __ieee754_rem_pio2f(x,y)
  *
  * return the remainder of x rem pi/2 in *y
@@ -25,13 +22,13 @@
  */
 
 #include <float.h>
-#include <openlibm_math.h>
 
+#include "math.h"
 #include "math_private.h"
 
 /*
  * invpio2:  53 bits of 2/pi
- * pio2_1:   first  33 bit of pi/2
+ * pio2_1:   first 25 bits of pi/2
  * pio2_1t:  pi/2 - pio2_1
  */
 
@@ -40,7 +37,10 @@ invpio2 =  6.36619772367581382433e-01, /* 0x3FE45F30, 0x6DC9C883 */
 pio2_1  =  1.57079631090164184570e+00, /* 0x3FF921FB, 0x50000000 */
 pio2_1t =  1.58932547735281966916e-08; /* 0x3E5110b4, 0x611A6263 */
 
-__inline int
+#ifdef INLINE_REM_PIO2F
+static __always_inline
+#endif
+int
 __ieee754_rem_pio2f(float x, double *y)
 {
 	double w,r,fn;
@@ -52,14 +52,8 @@ __ieee754_rem_pio2f(float x, double *y)
 	ix = hx&0x7fffffff;
     /* 33+53 bit pi is good enough for medium size */
 	if(ix<0x4dc90fdb) {		/* |x| ~< 2^28*(pi/2), medium size */
-	    /* Use a specialized rint() to get fn.  Assume round-to-nearest. */
-	    STRICT_ASSIGN(double,fn,x*invpio2+0x1.8p52);
-	    fn = fn-0x1.8p52;
-#ifdef HAVE_EFFICIENT_IRINT
+	    fn = rnint((float_t)x*invpio2);
 	    n  = irint(fn);
-#else
-	    n  = (int32_t)fn;
-#endif
 	    r  = x-fn*pio2_1;
 	    w  = fn*pio2_1t;
 	    *y = r-w;
@@ -73,7 +67,7 @@ __ieee754_rem_pio2f(float x, double *y)
 	}
     /* set z = scalbn(|x|,ilogb(|x|)-23) */
 	e0 = (ix>>23)-150;		/* e0 = ilogb(|x|)-23; */
-	SET_FLOAT_WORD(z, ix - ((int32_t)(e0<<23)));
+	SET_FLOAT_WORD(z, ix - ((int32_t)((u_int32_t)e0<<23)));
 	tx[0] = z;
 	n  =  __kernel_rem_pio2(tx,ty,e0,1,0);
 	if(hx<0) {*y = -ty[0]; return -n;}

@@ -1,4 +1,6 @@
 /*-
+ * SPDX-License-Identifier: BSD-2-Clause
+ *
  * Copyright (c) 2005-2008 David Schultz <das@FreeBSD.ORG>
  * All rights reserved.
  *
@@ -24,15 +26,10 @@
  * SUCH DAMAGE.
  */
 
-#include "cdefs-compat.h"
-//__FBSDID("$FreeBSD: src/lib/msun/src/s_cargl.c,v 1.1 2008/07/31 22:41:26 das Exp $");
+#include <complex.h>
+#include <math.h>
 
-#include <openlibm_complex.h>
-#include <openlibm_math.h>
-
-#include "math_private.h"
-
-OLM_DLLEXPORT long double
+long double
 cargl(long double complex z)
 {
 

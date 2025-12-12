@@ -1,4 +1,6 @@
-/*
+/*-
+ * SPDX-License-Identifier: BSD-4-Clause
+ *
  * Copyright (c) 1988, 1993
  *	The Regents of the University of California.  All rights reserved.
  *
@@ -10,7 +12,11 @@
  * 2. Redistributions in binary form must reproduce the above copyright
  *    notice, this list of conditions and the following disclaimer in the
  *    documentation and/or other materials provided with the distribution.
- * 3. Neither the name of the University nor the names of its contributors
+ * 3. All advertising materials mentioning features or use of this software
+ *    must display the following acknowledgement:
+ *	This product includes software developed by the University of
+ *	California, Berkeley and its contributors.
+ * 4. Neither the name of the University nor the names of its contributors
  *    may be used to endorse or promote products derived from this software
  *    without specific prior written permission.
  *
@@ -25,16 +31,14 @@
  * LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
- *
- *	@(#)mathimpl.h	8.1 (Berkeley) 6/4/93
- * $FreeBSD: src/lib/msun/bsdsrc/mathimpl.h,v 1.7 2005/11/18 05:03:12 bde Exp $
  */
 
 #ifndef _MATHIMPL_H_
 #define	_MATHIMPL_H_
 
-#include "cdefs-compat.h"
-#include "math_private.h"
+#include <math.h>
+
+#include "../src/math_private.h"
 
 /*
  * TRUNC() is a macro that sets the trailing 27 bits in the mantissa of an
@@ -48,9 +52,7 @@
 static __inline void
 _b_trunc(volatile double *_dp)
 {
-        //VBS
-        //u_int32_t _lw;
-	u_int32_t _lw;
+	uint32_t _lw;
 
 	GET_LOW_WORD(_lw, *_dp);
 	SET_LOW_WORD(*_dp, _lw & 0xf8000000);

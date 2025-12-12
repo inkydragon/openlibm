@@ -13,18 +13,14 @@
  * ====================================================
  */
 
-#include "cdefs-compat.h"
-//__FBSDID("$FreeBSD: src/lib/msun/src/s_fabsf.c,v 1.8 2008/02/22 02:30:35 das Exp $");
-
 /*
  * fabsf(x) returns the absolute value of x.
  */
 
-#include <openlibm_math.h>
-
+#include "math.h"
 #include "math_private.h"
 
-OLM_DLLEXPORT float
+float
 fabsf(float x)
 {
 	u_int32_t ix;

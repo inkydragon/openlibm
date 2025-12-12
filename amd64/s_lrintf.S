@@ -24,21 +24,15 @@
  * SUCH DAMAGE.
  */
 
-#include <amd64/bsd_asm.h>
+#include <machine/asm.h>
 
-//__FBSDID("$FreeBSD: src/lib/msun/amd64/s_lrintf.S,v 1.3 2011/01/07 16:13:12 kib Exp $")
+#ifndef fn
+#define	fn	lrintf
+#endif
 
-ENTRY(lrintf)
-#ifndef _WIN64
+ENTRY(fn)
 	cvtss2si %xmm0, %rax
-#else
-	cvtss2si %xmm0, %eax
-#endif
 	ret
-END(lrintf)
+END(fn)
 
-	
-/* Enable stack protection */
-#if defined(__ELF__)
-.section .note.GNU-stack,"",%progbits
-#endif
+	.section .note.GNU-stack,"",%progbits

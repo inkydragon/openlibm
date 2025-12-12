@@ -24,23 +24,11 @@
  * SUCH DAMAGE.
  */
 
-#include <amd64/bsd_asm.h>
-//__FBSDID("$FreeBSD: src/lib/msun/amd64/e_sqrtl.S,v 1.2 2011/01/07 16:13:12 kib Exp $")
-	
+#include <machine/asm.h>
 ENTRY(sqrtl)
-#ifndef _WIN64
 	fldt	8(%rsp)
 	fsqrt
-#else
-    fldt    (%rdx)
-    fsqrt
-    mov     %rcx,%rax
-    movq    $0x0,0x8(%rcx)
-    fstpt   (%rcx)
-#endif
 	ret
+END(sqrtl)
 
-/* Enable stack protection */
-#if defined(__ELF__)
-.section .note.GNU-stack,"",%progbits
-#endif
+	.section .note.GNU-stack,"",%progbits

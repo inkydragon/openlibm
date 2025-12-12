@@ -24,16 +24,10 @@
  * SUCH DAMAGE.
  */
 
-#include <amd64/bsd_asm.h>
-//__FBSDID("$FreeBSD: src/lib/msun/amd64/s_scalbn.S,v 1.3 2011/01/07 16:13:12 kib Exp $")
-
+#include <machine/asm.h>
 ENTRY(scalbn)
 	movsd	%xmm0,-8(%rsp)
-#ifndef _WIN64
 	movl	%edi,-12(%rsp)
-#else
-	movl	%edx,-12(%rsp)
-#endif
 	fildl	-12(%rsp)
 	fldl	-8(%rsp)
 	fscale
@@ -41,15 +35,6 @@ ENTRY(scalbn)
 	fstpl	-8(%rsp)
 	movsd	-8(%rsp),%xmm0
 	ret
-#ifndef _WIN64
 END(scalbn)
-.globl CNAME(ldexp)
-#else
-.globl CNAME(ldexp); .section .drectve; .ascii " -export:ldexp"
-#endif
-.set   CNAME(ldexp),CNAME(scalbn)
 
-/* Enable stack protection */
-#if defined(__ELF__)
-.section .note.GNU-stack,"",%progbits
-#endif
+	.section .note.GNU-stack,"",%progbits

@@ -1,4 +1,3 @@
-/* From: @(#)e_rem_pio2.c 1.4 95/01/18 */
 /*
  * ====================================================
  * Copyright (C) 1993 by Sun Microsystems, Inc. All rights reserved.
@@ -6,26 +5,24 @@
  *
  * Developed at SunSoft, a Sun Microsystems, Inc. business.
  * Permission to use, copy, modify, and distribute this
- * software is freely granted, provided that this notice
+ * software is freely granted, provided that this notice 
  * is preserved.
  * ====================================================
  *
  * Optimized by Bruce D. Evans.
  */
 
-#include "cdefs-compat.h"
-//__FBSDID("$FreeBSD: src/lib/msun/ld80/e_rem_pio2l.h,v 1.3 2011/06/18 13:56:33 benl Exp $");
-
 /* ld80 version of __ieee754_rem_pio2l(x,y)
- *
- * return the remainder of x rem pi/2 in y[0]+y[1]
+ * 
+ * return the remainder of x rem pi/2 in y[0]+y[1] 
  * use __kernel_rem_pio2()
  */
 
 #include <float.h>
-#include <openlibm_math.h>
 
+#include "math.h"
 #include "math_private.h"
+#include "fpmath.h"
 
 #define	BIAS	(LDBL_MAX_EXP - 1)
 
@@ -69,11 +66,7 @@ pio2_2t =  6.36831716351095013979e-25L,	/*  0xc51701b839a25205.0p-144 */
 pio2_3t = -2.75299651904407171810e-37L;	/* -0xbb5bf6c7ddd660ce.0p-185 */
 #endif
 
-//VBS
-//static inline __always_inline int
-//__ieee754_rem_pio2l(long double x, long double *y)
-
-static inline int
+static __always_inline int
 __ieee754_rem_pio2l(long double x, long double *y)
 {
 	union IEEEl2bits u,u1;
@@ -87,38 +80,32 @@ __ieee754_rem_pio2l(long double x, long double *y)
 	ex = expsign & 0x7fff;
 	if (ex < BIAS + 25 || (ex == BIAS + 25 && u.bits.manh < 0xc90fdaa2)) {
 	    /* |x| ~< 2^25*(pi/2), medium size */
-	    /* Use a specialized rint() to get fn.  Assume round-to-nearest. */
-	    fn = x*invpio2+0x1.8p63;
-	    fn = fn-0x1.8p63;
-#ifdef HAVE_EFFICIENT_IRINT
+	    fn = rnintl(x*invpio2);
 	    n  = irint(fn);
-#else
-	    n  = fn;
-#endif
 	    r  = x-fn*pio2_1;
 	    w  = fn*pio2_1t;	/* 1st round good to 102 bit */
 	    {
 		union IEEEl2bits u2;
 	        int ex1;
 	        j  = ex;
-	        y[0] = r-w;
+	        y[0] = r-w; 
 		u2.e = y[0];
 		ex1 = u2.xbits.expsign & 0x7fff;
 	        i = j-ex1;
 	        if(i>22) {  /* 2nd iteration needed, good to 141 */
 		    t  = r;
-		    w  = fn*pio2_2;
+		    w  = fn*pio2_2;	
 		    r  = t-w;
-		    w  = fn*pio2_2t-((t-r)-w);
+		    w  = fn*pio2_2t-((t-r)-w);	
 		    y[0] = r-w;
 		    u2.e = y[0];
 		    ex1 = u2.xbits.expsign & 0x7fff;
 		    i = j-ex1;
 		    if(i>61) {	/* 3rd iteration need, 180 bits acc */
 		    	t  = r;	/* will cover all possible cases */
-		    	w  = fn*pio2_3;
+		    	w  = fn*pio2_3;	
 		    	r  = t-w;
-		    	w  = fn*pio2_3t-((t-r)-w);
+		    	w  = fn*pio2_3t-((t-r)-w);	
 		    	y[0] = r-w;
 		    }
 		}
@@ -126,7 +113,7 @@ __ieee754_rem_pio2l(long double x, long double *y)
 	    y[1] = (r-y[0])-w;
 	    return n;
 	}
-    /*
+    /* 
      * all other (large) arguments
      */
 	if(ex==0x7fff) {		/* x is inf or NaN */

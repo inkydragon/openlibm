@@ -13,18 +13,14 @@
  * ====================================================
  */
 
-#include "cdefs-compat.h"
-//__FBSDID("$FreeBSD: src/lib/msun/src/e_remainderf.c,v 1.8 2008/02/12 17:11:36 bde Exp $");
-
-#include <openlibm_math.h>
-
+#include "math.h"
 #include "math_private.h"
 
 static const float zero = 0.0;
 
 
-OLM_DLLEXPORT float
-__ieee754_remainderf(float x, float p)
+float
+remainderf(float x, float p)
 {
 	int32_t hx,hp;
 	u_int32_t sx;
@@ -37,13 +33,13 @@ __ieee754_remainderf(float x, float p)
 	hx &= 0x7fffffff;
 
     /* purge off exception values */
-	if(hp==0) return (x*p)/(x*p);	 	/* p = 0 */
-	if((hx>=0x7f800000)||			/* x not finite */
+	if((hp==0)||			 	/* p = 0 */
+	  (hx>=0x7f800000)||			/* x not finite */
 	  ((hp>0x7f800000)))			/* p is NaN */
-	    return ((long double)x*p)/((long double)x*p);
+	    return nan_mix_op(x, p, *)/nan_mix_op(x, p, *);
 
 
-	if (hp<=0x7effffff) x = __ieee754_fmodf(x,p+p);	/* now x < 2p */
+	if (hp<=0x7effffff) x = fmodf(x,p+p);	/* now x < 2p */
 	if ((hx-hp)==0) return zero*x;
 	x  = fabsf(x);
 	p  = fabsf(p);

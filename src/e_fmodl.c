@@ -1,4 +1,3 @@
-/* @(#)e_fmod.c 1.3 95/01/18 */
 /*-
  * ====================================================
  * Copyright (C) 1993 by Sun Microsystems, Inc. All rights reserved.
@@ -10,29 +9,25 @@
  * ====================================================
  */
 
-#include "cdefs-compat.h"
-//__FBSDID("$FreeBSD: src/lib/msun/src/e_fmodl.c,v 1.2 2008/07/31 20:09:47 das Exp $");
-
 #include <float.h>
-#include <openlibm_math.h>
 #include <stdint.h>
 
 #include "fpmath.h"
-
+#include "math.h"
 #include "math_private.h"
 
 #define	BIAS (LDBL_MAX_EXP - 1)
 
 #if LDBL_MANL_SIZE > 32
-typedef	u_int64_t manl_t;
+typedef	uint64_t manl_t;
 #else
-typedef	u_int32_t manl_t;
+typedef	uint32_t manl_t;
 #endif
 
 #if LDBL_MANH_SIZE > 32
-typedef	u_int64_t manh_t;
+typedef	uint64_t manh_t;
 #else
-typedef	u_int32_t manh_t;
+typedef	uint32_t manh_t;
 #endif
 
 /*
@@ -62,7 +57,7 @@ static const long double one = 1.0, Zero[] = {0.0, -0.0,};
  * - The high part of the mantissa fits in an int64_t with enough room
  *   for an explicit integer bit in front of the fractional bits.
  */
-OLM_DLLEXPORT long double
+long double
 fmodl(long double x, long double y)
 {
 	union IEEEl2bits ux, uy;
@@ -80,7 +75,7 @@ fmodl(long double x, long double y)
 	   (ux.bits.exp == BIAS + LDBL_MAX_EXP) ||	 /* or x not finite */
 	   (uy.bits.exp == BIAS + LDBL_MAX_EXP &&
 	    ((uy.bits.manh&~LDBL_NBIT)|uy.bits.manl)!=0)) /* or y is NaN */
-	    return (x*y)/(x*y);
+	    return nan_mix_op(x, y, *)/nan_mix_op(x, y, *);
 	if(ux.bits.exp<=uy.bits.exp) {
 	    if((ux.bits.exp<uy.bits.exp) ||
 	       (ux.bits.manh<=uy.bits.manh &&

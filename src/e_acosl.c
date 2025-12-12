@@ -1,5 +1,4 @@
 
-/* @(#)e_acos.c 1.3 95/01/18 */
 /* FreeBSD: head/lib/msun/src/e_acos.c 176451 2008-02-22 02:30:36Z das */
 /*
  * ====================================================
@@ -12,18 +11,15 @@
  * ====================================================
  */
 
-#include "cdefs-compat.h"
-//__FBSDID("$FreeBSD: src/lib/msun/src/e_acosl.c,v 1.2 2008/08/02 03:56:22 das Exp $");
-
 /*
  * See comments in e_acos.c.
  * Converted to long double by David Schultz <das@FreeBSD.ORG>.
  */
 
 #include <float.h>
-#include <openlibm_math.h>
 
 #include "invtrig.h"
+#include "math.h"
 #include "math_private.h"
 
 static const long double
@@ -40,7 +36,7 @@ static const long double
 pi =  3.14159265358979323846264338327950280e+00L;
 #endif
 
-OLM_DLLEXPORT long double
+long double
 acosl(long double x)
 {
 	union IEEEl2bits u;

@@ -13,17 +13,13 @@
  * ====================================================
  */
 
-#include "cdefs-compat.h"
-//__FBSDID("$FreeBSD: src/lib/msun/src/s_expm1f.c,v 1.12 2011/10/21 06:26:38 das Exp $");
-
 #include <float.h>
-#include <openlibm_math.h>
 
+#include "math.h"
 #include "math_private.h"
 
 static const float
 one		= 1.0,
-huge		= 1.0e+30,
 tiny		= 1.0e-30,
 o_threshold	= 8.8721679688e+01,/* 0x42b17180 */
 ln2_hi		= 6.9313812256e-01,/* 0x3f317180 */
@@ -37,7 +33,9 @@ invln2		= 1.4426950216e+00,/* 0x3fb8aa3b */
 Q1 = -3.3333212137e-2,		/* -0x888868.0p-28 */
 Q2 =  1.5807170421e-3;		/*  0xcf3010.0p-33 */
 
-OLM_DLLEXPORT float
+static volatile float huge = 1.0e+30;
+
+float
 expm1f(float x)
 {
 	float y,hi,lo,c,t,e,hxs,hfx,r1,twopk;
@@ -93,7 +91,7 @@ expm1f(float x)
 	e  = hxs*((r1-t)/((float)6.0 - x*t));
 	if(k==0) return x - (x*e-hxs);		/* c is 0 */
 	else {
-	    SET_FLOAT_WORD(twopk,0x3f800000+(k<<23));	/* 2^k */
+	    SET_FLOAT_WORD(twopk,((u_int32_t)(0x7f+k))<<23);	/* 2^k */
 	    e  = (x*(e-c)-c);
 	    e -= hxs;
 	    if(k== -1) return (float)0.5*(x-e)-(float)0.5;

@@ -1,5 +1,7 @@
 /*-
- * Copyright (c) 2003 Dag-Erling Coïdan Smørgrav
+ * SPDX-License-Identifier: BSD-3-Clause
+ *
+ * Copyright (c) 2003 Dag-Erling SmÃ¸rgrav
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -24,15 +26,13 @@
  * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
  * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- *
- * $FreeBSD: src/lib/msun/src/s_fabsl.c,v 1.2 2003/10/25 19:53:28 des Exp $
  */
 
-#include <openlibm_math.h>
-#include "math_private.h"
+#include <math.h>
+
 #include "fpmath.h"
 
-OLM_DLLEXPORT long double
+long double
 fabsl(long double x)
 {
 	union IEEEl2bits u;

@@ -1,4 +1,3 @@
-/* @(#)s_floor.c 5.1 93/09/24 */
 /*
  * ====================================================
  * Copyright (C) 1993 by Sun Microsystems, Inc. All rights reserved.
@@ -10,9 +9,6 @@
  * ====================================================
  */
 
-#include "cdefs-compat.h"
-//__FBSDID("$FreeBSD: src/lib/msun/src/s_trunc.c,v 1.4 2008/02/22 02:27:34 das Exp $");
-
 /*
  * trunc(x)
  * Return x rounded toward 0 to integral value
@@ -23,13 +19,13 @@
  */
 
 #include <float.h>
-#include <openlibm_math.h>
 
+#include "math.h"
 #include "math_private.h"
 
 static const double huge = 1.0e300;
 
-OLM_DLLEXPORT double
+double
 trunc(double x)
 {
 	int32_t i0,i1,j0;
@@ -63,5 +59,5 @@ trunc(double x)
 }
 
 #if LDBL_MANT_DIG == 53
-openlibm_weak_reference(trunc, truncl);
+__weak_reference(trunc, truncl);
 #endif

@@ -13,25 +13,21 @@
  * ====================================================
  */
 
-#include "cdefs-compat.h"
-//__FBSDID("$FreeBSD: src/lib/msun/src/e_fmodf.c,v 1.7 2008/02/22 02:30:34 das Exp $");
-
 /*
- * __ieee754_fmodf(x,y)
+ * fmodf(x,y)
  * Return x mod y in exact arithmetic
  * Method: shift and subtract
  */
 
-#include <openlibm_math.h>
-
+#include "math.h"
 #include "math_private.h"
 
 static const float one = 1.0, Zero[] = {0.0, -0.0,};
 
-OLM_DLLEXPORT float
-__ieee754_fmodf(float x, float y)
+float
+fmodf(float x, float y)
 {
-	int32_t n,hx,hy,hz,ix,iy,sx,i;
+	int32_t hx, hy, hz, ix, iy, n, sx;
 
 	GET_FLOAT_WORD(hx,x);
 	GET_FLOAT_WORD(hy,y);
@@ -42,20 +38,22 @@ __ieee754_fmodf(float x, float y)
     /* purge off exception values */
 	if(hy==0||(hx>=0x7f800000)||		/* y=0,or x not finite */
 	   (hy>0x7f800000))			/* or y is NaN */
-	    return (x*y)/(x*y);
+	    return nan_mix_op(x, y, *)/nan_mix_op(x, y, *);
 	if(hx<hy) return x;			/* |x|<|y| return x */
 	if(hx==hy)
 	    return Zero[(u_int32_t)sx>>31];	/* |x|=|y| return x*0*/
 
     /* determine ix = ilogb(x) */
-	if(hx<0x00800000) {	/* subnormal x */
-	    for (ix = -126,i=(hx<<8); i>0; i<<=1) ix -=1;
-	} else ix = (hx>>23)-127;
+	if(hx<0x00800000)
+	    ix = subnormal_ilogbf(hx);
+	else
+	    ix = (hx>>23)-127;
 
     /* determine iy = ilogb(y) */
-	if(hy<0x00800000) {	/* subnormal y */
-	    for (iy = -126,i=(hy<<8); i>=0; i<<=1) iy -=1;
-	} else iy = (hy>>23)-127;
+	if(hy<0x00800000)
+	    iy = subnormal_ilogbf(hy);
+	else
+	    iy = (hy>>23)-127;
 
     /* set up {hx,lx}, {hy,ly} and align y to x */
 	if(ix >= -126)

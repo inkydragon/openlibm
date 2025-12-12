@@ -1,4 +1,6 @@
 /*-
+ * SPDX-License-Identifier: BSD-2-Clause
+ *
  * Copyright (c) 2004 David Schultz <das@FreeBSD.ORG>
  * All rights reserved.
  *
@@ -24,15 +26,18 @@
  * SUCH DAMAGE.
  */
 
-#include "cdefs-compat.h"
-//__FBSDID("$FreeBSD: src/lib/msun/src/s_fminf.c,v 1.1 2004/06/30 07:04:01 das Exp $");
-
-#include <openlibm_math.h>
+#include <math.h>
 
 #include "fpmath.h"
-#include "math_private.h"
 
-OLM_DLLEXPORT float
+#ifdef USE_BUILTIN_FMINF
+float
+fminf(float x, float y)
+{
+	return (__builtin_fminf(x, y));
+}
+#else
+float
 fminf(float x, float y)
 {
 	union IEEEf2bits u[2];
@@ -52,3 +57,4 @@ fminf(float x, float y)
 
 	return (x < y ? x : y);
 }
+#endif

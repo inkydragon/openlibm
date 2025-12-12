@@ -1,4 +1,3 @@
-/* @(#)s_ilogb.c 5.1 93/09/24 */
 /*
  * ====================================================
  * Copyright (C) 1993 by Sun Microsystems, Inc. All rights reserved.
@@ -10,9 +9,6 @@
  * ====================================================
  */
 
-#include "cdefs-compat.h"
-//__FBSDID("$FreeBSD: src/lib/msun/src/s_ilogb.c,v 1.10 2008/02/22 02:30:35 das Exp $");
-
 /* ilogb(double x)
  * return the binary exponent of non-zero x
  * ilogb(0) = FP_ILOGB0
@@ -21,26 +17,22 @@
  */
 
 #include <limits.h>
-#include <openlibm_math.h>
 
+#include "math.h"
 #include "math_private.h"
 
-OLM_DLLEXPORT int
+int
 ilogb(double x)
 {
-	int32_t hx,lx,ix;
+	int32_t hx, ix, lx;
 
 	EXTRACT_WORDS(hx,lx,x);
 	hx &= 0x7fffffff;
 	if(hx<0x00100000) {
 	    if((hx|lx)==0)
 		return FP_ILOGB0;
-	    else			/* subnormal x */
-		if(hx==0) {
-		    for (ix = -1043; lx>0; lx<<=1) ix -=1;
-		} else {
-		    for (ix = -1022,hx<<=11; hx>0; hx<<=1) ix -=1;
-		}
+	    else
+		ix = subnormal_ilogb(hx, lx);
 	    return ix;
 	}
 	else if (hx<0x7ff00000) return (hx>>20)-1023;

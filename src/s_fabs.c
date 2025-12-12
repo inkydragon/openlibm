@@ -1,4 +1,3 @@
-/* @(#)s_fabs.c 5.1 93/09/24 */
 /*
  * ====================================================
  * Copyright (C) 1993 by Sun Microsystems, Inc. All rights reserved.
@@ -14,11 +13,10 @@
  * fabs(x) returns the absolute value of x.
  */
 
-#include <openlibm_math.h>
-
+#include "math.h"
 #include "math_private.h"
 
-OLM_DLLEXPORT double
+double
 fabs(double x)
 {
 	u_int32_t high;

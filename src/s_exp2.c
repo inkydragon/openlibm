@@ -1,4 +1,6 @@
 /*-
+ * SPDX-License-Identifier: BSD-2-Clause
+ *
  * Copyright (c) 2005 David Schultz <das@FreeBSD.ORG>
  * All rights reserved.
  *
@@ -24,19 +26,15 @@
  * SUCH DAMAGE.
  */
 
-#include "cdefs-compat.h"
-//__FBSDID("$FreeBSD: src/lib/msun/src/s_exp2.c,v 1.7 2008/02/22 02:27:34 das Exp $");
-
 #include <float.h>
-#include <openlibm_math.h>
 
+#include "math.h"
 #include "math_private.h"
 
 #define	TBLBITS	8
 #define	TBLSIZE	(1 << TBLBITS)
 
 static const double
-    huge     = 0x1p1000,
     redux    = 0x1.8p52 / TBLSIZE,
     P1	     = 0x1.62e42fefa39efp-1,
     P2	     = 0x1.ebfbdff82c575p-3,
@@ -44,7 +42,9 @@ static const double
     P4	     = 0x1.3b2ab88f70400p-7,
     P5	     = 0x1.5d88003875c74p-10;
 
-static volatile double twom1000 = 0x1p-1000;
+static volatile double
+    huge     = 0x1p1000,
+    twom1000 = 0x1p-1000;
 
 static const double tbl[TBLSIZE * 2] = {
 /*	exp2(z + eps)		eps	*/
@@ -314,7 +314,7 @@ static const double tbl[TBLSIZE * 2] = {
  * Method: (accurate tables)
  *
  *   Reduce x:
- *     x = 2**k + y, for integer k and |y| <= 1/2.
+ *     x = k + y, for integer k and |y| <= 1/2.
  *     Thus we have exp2(x) = 2**k * exp2(y).
  *
  *   Reduce y:
@@ -337,11 +337,11 @@ static const double tbl[TBLSIZE * 2] = {
  *	Gal, S. and Bachelis, B.  An Accurate Elementary Mathematical Library
  *	for the IEEE Floating Point Standard.  TOMS 17(1), 26-46 (1991).
  */
-OLM_DLLEXPORT double
+double
 exp2(double x)
 {
 	double r, t, twopk, twopkp1000, z;
-	u_int32_t hx, ix, lx, i0;
+	uint32_t hx, ix, lx, i0;
 	int k;
 
 	/* Filter out exceptional cases. */
@@ -392,5 +392,5 @@ exp2(double x)
 }
 
 #if (LDBL_MANT_DIG == 53)
-openlibm_weak_reference(exp2, exp2l);
+__weak_reference(exp2, exp2l);
 #endif

@@ -28,9 +28,7 @@
  * Based on public-domain remainder routine by J.T. Conklin <jtc@NetBSD.org>.
  */
 
-#include <amd64/bsd_asm.h>
-//__FBSDID("$FreeBSD: src/lib/msun/amd64/s_remquof.S,v 1.3 2011/01/07 16:13:12 kib Exp $"); 
-	
+#include <machine/asm.h>
 ENTRY(remquof)
 	movss	%xmm0,-4(%rsp)
 	movss	%xmm1,-8(%rsp)
@@ -59,18 +57,10 @@ ENTRY(remquof)
 	andl	$1,%ecx
 	addl	%ecx,%eax
 /* Store the quotient and return. */
-#ifndef _WIN64
 	movl	%eax,(%rdi)
-#else
-    movl    %eax,(%r8)
-#endif
 	fstps	-4(%rsp)
 	movss	-4(%rsp),%xmm0
 	ret
 END(remquof)
 
-	
-/* Enable stack protection */
-#if defined(__ELF__)
-.section .note.GNU-stack,"",%progbits
-#endif
+	.section .note.GNU-stack,"",%progbits

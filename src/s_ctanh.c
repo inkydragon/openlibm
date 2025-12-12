@@ -1,4 +1,6 @@
 /*-
+ * SPDX-License-Identifier: BSD-2-Clause
+ *
  * Copyright (c) 2011 David Schultz
  * All rights reserved.
  *
@@ -25,7 +27,7 @@
  */
 
 /*
- * Hyperbolic tangent of a complex argument z = x + i y.
+ * Hyperbolic tangent of a complex argument z = x + I y.
  *
  * The algorithm is from:
  *
@@ -44,15 +46,15 @@
  *
  *   tanh(z) = sinh(z) / cosh(z)
  *
- *             sinh(x) cos(y) + i cosh(x) sin(y)
+ *             sinh(x) cos(y) + I cosh(x) sin(y)
  *           = ---------------------------------
- *             cosh(x) cos(y) + i sinh(x) sin(y)
+ *             cosh(x) cos(y) + I sinh(x) sin(y)
  *
- *             cosh(x) sinh(x) / cos^2(y) + i tan(y)
+ *             cosh(x) sinh(x) / cos^2(y) + I tan(y)
  *           = -------------------------------------
  *                    1 + sinh^2(x) / cos^2(y)
  *
- *             beta rho s + i t
+ *             beta rho s + I t
  *           = ----------------
  *               1 + beta s^2
  *
@@ -63,20 +65,17 @@
  *   precision.  I also handle large x differently.
  */
 
-#include "cdefs-compat.h"
-//__FBSDID("$FreeBSD: src/lib/msun/src/s_ctanh.c,v 1.2 2011/10/21 06:30:16 das Exp $");
-
-#include <openlibm_complex.h>
-#include <openlibm_math.h>
+#include <complex.h>
+#include <math.h>
 
 #include "math_private.h"
 
-OLM_DLLEXPORT double complex
+double complex
 ctanh(double complex z)
 {
 	double x, y;
 	double t, beta, s, rho, denom;
-	u_int32_t hx, ix, lx;
+	uint32_t hx, ix, lx;
 
 	x = creal(z);
 	y = cimag(z);
@@ -85,16 +84,16 @@ ctanh(double complex z)
 	ix = hx & 0x7fffffff;
 
 	/*
-	 * ctanh(NaN + i 0) = NaN + i 0
+	 * ctanh(NaN +- I 0) = d(NaN) +- I 0
 	 *
-	 * ctanh(NaN + i y) = NaN + i NaN		for y != 0
+	 * ctanh(NaN + I y) = d(NaN,y) + I d(NaN,y)	for y != 0
 	 *
 	 * The imaginary part has the sign of x*sin(2*y), but there's no
 	 * special effort to get this right.
 	 *
-	 * ctanh(+-Inf +- i Inf) = +-1 +- 0
+	 * ctanh(+-Inf +- I Inf) = +-1 +- I 0
 	 *
-	 * ctanh(+-Inf + i y) = +-1 + 0 sin(2y)		for y finite
+	 * ctanh(+-Inf + I y) = +-1 + I 0 sin(2y)	for y finite
 	 *
 	 * The imaginary part of the sign is unspecified.  This special
 	 * case is only needed to avoid a spurious invalid exception when
@@ -102,24 +101,27 @@ ctanh(double complex z)
 	 */
 	if (ix >= 0x7ff00000) {
 		if ((ix & 0xfffff) | lx)	/* x is NaN */
-			return (CMPLX(x, (y == 0 ? y : x * y)));
+			return (CMPLX(nan_mix(x, y),
+			    y == 0 ? y : nan_mix(x, y)));
 		SET_HIGH_WORD(x, hx - 0x40000000);	/* x = copysign(1, x) */
 		return (CMPLX(x, copysign(0, isinf(y) ? y : sin(y) * cos(y))));
 	}
 
 	/*
+	 * ctanh(+-0 + i NAN) = +-0 + i NaN
+	 * ctanh(+-0 +- i Inf) = +-0 + i NaN
 	 * ctanh(x + i NAN) = NaN + i NaN
 	 * ctanh(x +- i Inf) = NaN + i NaN
 	 */
 	if (!isfinite(y))
-		return (CMPLX(y - y, y - y));
+		return (CMPLX(x ? y - y : x, y - y));
 
 	/*
-	 * ctanh(+-huge + i +-y) ~= +-1 +- i 2sin(2y)/exp(2x), using the
+	 * ctanh(+-huge +- I y) ~= +-1 +- I 2sin(2y)/exp(2x), using the
 	 * approximation sinh^2(huge) ~= exp(2*huge) / 4.
 	 * We use a modified formula to avoid spurious overflow.
 	 */
-	if (ix >= 0x40360000) {	/* x >= 22 */
+	if (ix >= 0x40360000) {	/* |x| >= 22 */
 		double exp_mx = exp(-fabs(x));
 		return (CMPLX(copysign(1, x),
 		    4 * sin(y) * cos(y) * exp_mx * exp_mx));
@@ -134,11 +136,11 @@ ctanh(double complex z)
 	return (CMPLX((beta * rho * s) / denom, t / denom));
 }
 
-OLM_DLLEXPORT double complex
+double complex
 ctan(double complex z)
 {
 
-	/* ctan(z) = -I * ctanh(I * z) */
-	z = ctanh(CMPLX(-cimag(z), creal(z)));
-	return (CMPLX(cimag(z), -creal(z)));
+	/* ctan(z) = -I * ctanh(I * z) = I * conj(ctanh(I * conj(z))) */
+	z = ctanh(CMPLX(cimag(z), creal(z)));
+	return (CMPLX(cimag(z), creal(z)));
 }

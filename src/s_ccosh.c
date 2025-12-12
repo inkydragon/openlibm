@@ -1,5 +1,7 @@
 /*-
- * Copyright (c) 2005 Bruce D. Evans and Steven G. Kargl
+ * SPDX-License-Identifier: BSD-2-Clause
+ *
+ * Copyright (c) 2005-2025 Bruce D. Evans and Steven G. Kargl
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -32,22 +34,21 @@
  *
  * Exceptional values are noted in the comments within the source code.
  * These values and the return value were taken from n1124.pdf.
+ * The sign of the result for some exceptional values is unspecified but
+ * must satisfy both cosh(conj(z)) == conj(cosh(z)) and cosh(-z) == cosh(z).
  */
 
-#include "cdefs-compat.h"
-//__FBSDID("$FreeBSD: src/lib/msun/src/s_ccosh.c,v 1.2 2011/10/21 06:29:32 das Exp $");
-
-#include <openlibm_complex.h>
-#include <openlibm_math.h>
+#include <complex.h>
+#include <math.h>
 
 #include "math_private.h"
 
 static const double huge = 0x1p1023;
 
-OLM_DLLEXPORT double complex
+double complex
 ccosh(double complex z)
 {
-	double x, y, h;
+	double c, h, s, x, y;
 	int32_t hx, hy, ix, iy, lx, ly;
 
 	x = creal(z);
@@ -63,14 +64,16 @@ ccosh(double complex z)
 	if (ix < 0x7ff00000 && iy < 0x7ff00000) {
 		if ((iy | ly) == 0)
 			return (CMPLX(cosh(x), x * y));
-		if (ix < 0x40360000)	/* small x: normal case */
-			return (CMPLX(cosh(x) * cos(y), sinh(x) * sin(y)));
+
+		sincos(y, &s, &c);
+		if (ix < 0x40360000)	/* |x| < 22: normal case */
+			return (CMPLX(cosh(x) * c, sinh(x) * s));
 
 		/* |x| >= 22, so cosh(x) ~= exp(|x|) */
 		if (ix < 0x40862e42) {
 			/* x < 710: exp(|x|) won't overflow */
-			h = exp(fabs(x)) * 0.5;
-			return (CMPLX(h * cos(y), copysign(h, x) * sin(y)));
+			h = exp(fabs(x)) / 2;
+			return (CMPLX(h * c, copysign(h, x) * s));
 		} else if (ix < 0x4096bbaa) {
 			/* x < 1455: scale to avoid overflow */
 			z = __ldexp_cexp(CMPLX(fabs(x), y), -1);
@@ -78,33 +81,32 @@ ccosh(double complex z)
 		} else {
 			/* x >= 1455: the result always overflows */
 			h = huge * x;
-			return (CMPLX(h * h * cos(y), h * sin(y)));
+			return (CMPLX(h * h * c, h * s));
 		}
 	}
 
 	/*
-	 * cosh(+-0 +- I Inf) = dNaN + I sign(d(+-0, dNaN))0.
-	 * The sign of 0 in the result is unspecified.  Choice = normally
-	 * the same as dNaN.  Raise the invalid floating-point exception.
+	 * cosh(+-0 +- I Inf) = dNaN + I (+-)(+-)0.
+	 * The sign of 0 in the result is unspecified.  Choice = product
+	 * of the signs of the argument.  Raise the invalid floating-point
+	 * exception.
 	 *
-	 * cosh(+-0 +- I NaN) = d(NaN) + I sign(d(+-0, NaN))0.
-	 * The sign of 0 in the result is unspecified.  Choice = normally
-	 * the same as d(NaN).
+	 * cosh(+-0 +- I NaN) = d(NaN) + I (+-)(+-)0.
+	 * The sign of 0 in the result is unspecified.  Choice = product
+	 * of the signs of the argument.
 	 */
-	if ((ix | lx) == 0 && iy >= 0x7ff00000)
-		return (CMPLX(y - y, copysign(0, x * (y - y))));
+	if ((ix | lx) == 0)		/* && iy >= 0x7ff00000 */
+		return (CMPLX(y - y, x * copysign(0, y)));
 
 	/*
 	 * cosh(+-Inf +- I 0) = +Inf + I (+-)(+-)0.
 	 *
-	 * cosh(NaN +- I 0)   = d(NaN) + I sign(d(NaN, +-0))0.
-	 * The sign of 0 in the result is unspecified.
+	 * cosh(NaN +- I 0)   = d(NaN) + I (+-)(+-)0.
+	 * The sign of 0 in the result is unspecified.  Choice = product
+	 * of the signs of the argument.
 	 */
-	if ((iy | ly) == 0 && ix >= 0x7ff00000) {
-		if (((hx & 0xfffff) | lx) == 0)
-			return (CMPLX(x * x, copysign(0, x) * y));
-		return (CMPLX(x * x, copysign(0, (x + x) * y)));
-	}
+	if ((iy | ly) == 0)		/* && ix >= 0x7ff00000 */
+		return (CMPLX(x * x, copysign(0, x) * y));
 
 	/*
 	 * cosh(x +- I Inf) = dNaN + I dNaN.
@@ -114,7 +116,7 @@ ccosh(double complex z)
 	 * Optionally raises the invalid floating-point exception for finite
 	 * nonzero x.  Choice = don't raise (except for signaling NaNs).
 	 */
-	if (ix < 0x7ff00000 && iy >= 0x7ff00000)
+	if (ix < 0x7ff00000)		/* && iy >= 0x7ff00000 */
 		return (CMPLX(y - y, x * (y - y)));
 
 	/*
@@ -126,10 +128,12 @@ ccosh(double complex z)
 	 *
 	 * cosh(+-Inf + I y)   = +Inf cos(y) +- I Inf sin(y)
 	 */
-	if (ix >= 0x7ff00000 && ((hx & 0xfffff) | lx) == 0) {
+	if (ix == 0x7ff00000 && lx == 0) {
 		if (iy >= 0x7ff00000)
-			return (CMPLX(x * x, x * (y - y)));
-		return (CMPLX((x * x) * cos(y), x * sin(y)));
+			return (CMPLX(INFINITY, x * (y - y)));
+
+		sincos(y, &s, &c);
+		return (CMPLX(INFINITY * c, x * s));
 	}
 
 	/*
@@ -143,13 +147,19 @@ ccosh(double complex z)
 	 * Optionally raises the invalid floating-point exception for finite
 	 * nonzero y.  Choice = don't raise (except for signaling NaNs).
 	 */
-	return (CMPLX((x * x) * (y - y), (x + x) * (y - y)));
+	return (CMPLX(((long double)x * x) * (y - y),
+	    ((long double)x + x) * (y - y)));
 }
 
-OLM_DLLEXPORT double complex
+double complex
 ccos(double complex z)
 {
 
 	/* ccos(z) = ccosh(I * z) */
 	return (ccosh(CMPLX(-cimag(z), creal(z))));
 }
+
+#if (LDBL_MANT_DIG == 53)
+__weak_reference(ccosh, ccoshl);
+__weak_reference(ccos, ccosl);
+#endif

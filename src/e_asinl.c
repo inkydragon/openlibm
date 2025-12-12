@@ -1,5 +1,4 @@
 
-/* @(#)e_asin.c 1.3 95/01/18 */
 /* FreeBSD: head/lib/msun/src/e_asin.c 176451 2008-02-22 02:30:36Z das */
 /*
  * ====================================================
@@ -12,25 +11,22 @@
  * ====================================================
  */
 
-#include "cdefs-compat.h"
-//__FBSDID("$FreeBSD: src/lib/msun/src/e_asinl.c,v 1.2 2008/08/03 17:49:05 das Exp $");
-
 /*
  * See comments in e_asin.c.
  * Converted to long double by David Schultz <das@FreeBSD.ORG>.
  */
 
 #include <float.h>
-#include <openlibm_math.h>
 
 #include "invtrig.h"
+#include "math.h"
 #include "math_private.h"
 
 static const long double
 one =  1.00000000000000000000e+00,
 huge = 1.000e+300;
 
-OLM_DLLEXPORT long double
+long double
 asinl(long double x)
 {
 	union IEEEl2bits u;

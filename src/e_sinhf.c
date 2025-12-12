@@ -13,17 +13,13 @@
  * ====================================================
  */
 
-#include "cdefs-compat.h"
-//__FBSDID("$FreeBSD: src/lib/msun/src/e_sinhf.c,v 1.10 2011/10/21 06:28:47 das Exp $");
-
-#include <openlibm_math.h>
-
+#include "math.h"
 #include "math_private.h"
 
 static const float one = 1.0, shuge = 1.0e37;
 
-OLM_DLLEXPORT float
-__ieee754_sinhf(float x)
+float
+sinhf(float x)
 {
 	float t,h;
 	int32_t ix,jx;
@@ -46,7 +42,7 @@ __ieee754_sinhf(float x)
 	}
 
     /* |x| in [9, logf(maxfloat)] return 0.5*exp(|x|) */
-	if (ix < 0x42b17217)  return h*__ieee754_expf(fabsf(x));
+	if (ix < 0x42b17217)  return h*expf(fabsf(x));
 
     /* |x| in [logf(maxfloat), overflowthresold] */
 	if (ix<=0x42b2d4fc)

@@ -13,17 +13,13 @@
  * ====================================================
  */
 
-#include "cdefs-compat.h"
-//__FBSDID("$FreeBSD: src/lib/msun/src/s_logbf.c,v 1.9 2008/02/22 02:30:35 das Exp $");
-
-#include <openlibm_math.h>
-
+#include "math.h"
 #include "math_private.h"
 
 static const float
 two25 = 3.355443200e+07;		/* 0x4c000000 */
 
-OLM_DLLEXPORT float
+float
 logbf(float x)
 {
 	int32_t ix;

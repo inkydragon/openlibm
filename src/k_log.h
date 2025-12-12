@@ -1,5 +1,4 @@
 
-/* @(#)e_log.c 1.3 95/01/18 */
 /*
  * ====================================================
  * Copyright (C) 1993 by Sun Microsystems, Inc. All rights reserved.
@@ -10,9 +9,6 @@
  * is preserved.
  * ====================================================
  */
-
-#include "cdefs-compat.h"
-//__FBSDID("$FreeBSD: src/lib/msun/src/k_log.h,v 1.2 2011/10/15 05:23:28 das Exp $");
 
 /*
  * k_log1p(f):

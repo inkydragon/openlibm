@@ -1,4 +1,3 @@
-/* @(#)s_cbrt.c 5.1 93/09/24 */
 /*
  * ====================================================
  * Copyright (C) 1993 by Sun Microsystems, Inc. All rights reserved.
@@ -12,11 +11,8 @@
  * Optimized by Bruce D. Evans.
  */
 
-#include "cdefs-compat.h"
-//__FBSDID("$FreeBSD: src/lib/msun/src/s_cbrt.c,v 1.17 2011/03/12 16:50:39 kargl Exp $");
-
-#include <openlibm_math.h>
-
+#include <float.h>
+#include "math.h"
 #include "math_private.h"
 
 /* cbrt(x)
@@ -34,13 +30,13 @@ P2 =  1.621429720105354466140,		/* 0x3ff9f160, 0x4a49d6c2 */
 P3 = -0.758397934778766047437,		/* 0xbfe844cb, 0xbee751d9 */
 P4 =  0.145996192886612446982;		/* 0x3fc2b000, 0xd4e4edd7 */
 
-OLM_DLLEXPORT double
+double
 cbrt(double x)
 {
 	int32_t	hx;
 	union {
 	    double value;
-	    u_int64_t bits;
+	    uint64_t bits;
 	} u;
 	double r,s,t=0.0,w;
 	u_int32_t sign;
@@ -60,7 +56,7 @@ cbrt(double x)
      * error of about 1 in 16.  Adding a bias of -0.03306235651 to the
      * (e%3+m)/3 term reduces the error to about 1 in 32. With the IEEE
      * floating point representation, for finite positive normal values,
-     * ordinary integer divison of the value in bits magically gives
+     * ordinary integer division of the value in bits magically gives
      * almost exactly the RHS of the above provided we first subtract the
      * exponent bias (1023 for doubles) and later add it back.  We do the
      * subtraction virtually to keep e >= 0 so that ordinary integer
@@ -94,7 +90,7 @@ cbrt(double x)
      * the result is larger in magnitude than cbrt(x) but not much more than
      * 2 23-bit ulps larger).  With rounding towards zero, the error bound
      * would be ~5/6 instead of ~4/6.  With a maximum error of 2 23-bit ulps
-     * in the rounded t, the infinite-precision error in the Newton
+     * in the rounded t, the infinite-precision error in the Halley
      * approximation barely affects third digit in the final error
      * 0.667; the error in the rounded t can be up to about 3 23-bit ulps
      * before the final error is larger than 0.667 ulps.
@@ -103,16 +99,16 @@ cbrt(double x)
 	u.bits=(u.bits+0x80000000)&0xffffffffc0000000ULL;
 	t=u.value;
 
-    /* one step Newton iteration to 53 bits with error < 0.667 ulps */
+    /* one step Halley iteration to 53 bits with error < 0.667 ulps */
 	s=t*t;				/* t*t is exact */
 	r=x/s;				/* error <= 0.5 ulps; |r| < |t| */
 	w=t+t;				/* t+t is exact */
 	r=(r-t)/(w+r);			/* r-t is exact; w+r ~= 3*t */
-	t=t+t*r;			/* error <= 0.5 + 0.5/3 + epsilon */
+	t=t+t*r;			/* error <= (0.5 + 0.5/3) * ulp */
 
 	return(t);
 }
 
 #if (LDBL_MANT_DIG == 53)
-openlibm_weak_reference(cbrt, cbrtl);
+__weak_reference(cbrt, cbrtl);
 #endif

@@ -1,5 +1,4 @@
 /*
- * From: @(#)s_ilogb.c 5.1 93/09/24
  * ====================================================
  * Copyright (C) 1993 by Sun Microsystems, Inc. All rights reserved.
  *
@@ -12,12 +11,11 @@
 
 #include <float.h>
 #include <limits.h>
-#include <openlibm_math.h>
+#include <math.h>
 
 #include "fpmath.h"
-#include "math_private.h"
 
-OLM_DLLEXPORT long double
+long double
 logbl(long double x)
 {
 	union IEEEl2bits u;

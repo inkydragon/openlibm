@@ -13,13 +13,16 @@
  * ====================================================
  */
 
-#include <assert.h>
-#include "cdefs-compat.h"
+/*
+ * See e_j0.c for complete comments.
+ */
 
-#include <openlibm_math.h>
+#include "math.h"
 #include "math_private.h"
 
-static float pzerof(float), qzerof(float);
+static __inline float pzerof(float), qzerof(float);
+
+static const volatile float vone = 1,  vzero = 0;
 
 static const float
 huge 	= 1e30,
@@ -36,10 +39,10 @@ S02  =  1.1692678527e-04, /* 0x38f53697 */
 S03  =  5.1354652442e-07, /* 0x3509daa6 */
 S04  =  1.1661400734e-09; /* 0x30a045e8 */
 
-static const float zero = 0.0;
+static const float zero = 0, qrtr = 0.25;
 
-OLM_DLLEXPORT float
-__ieee754_j0f(float x)
+float
+j0f(float x)
 {
 	float z, s,c,ss,cc,r,u,v;
 	int32_t hx,ix;
@@ -49,11 +52,10 @@ __ieee754_j0f(float x)
 	if(ix>=0x7f800000) return one/(x*x);
 	x = fabsf(x);
 	if(ix >= 0x40000000) {	/* |x| >= 2.0 */
-		s = sinf(x);
-		c = cosf(x);
+		sincosf(x, &s, &c);
 		ss = s-c;
 		cc = s+c;
-		if(ix<0x7f000000) {  /* make sure x+x not overflow */
+		if(ix<0x7f000000) {  /* Make sure x+x does not overflow. */
 		    z = -cosf(x+x);
 		    if ((s*c)<zero) cc = z/ss;
 		    else 	    ss = z/cc;
@@ -79,9 +81,9 @@ __ieee754_j0f(float x)
 	r =  z*(R02+z*(R03+z*(R04+z*R05)));
 	s =  one+z*(S01+z*(S02+z*(S03+z*S04)));
 	if(ix < 0x3F800000) {	/* |x| < 1.00 */
-	    return one + z*((float)-0.25+(r/s));
+	    return one + z*((r/s)-qrtr);
 	} else {
-	    u = (float)0.5*x;
+	    u = x/2;
 	    return((one+u)*(one-u)+z*(r/s));
 	}
 }
@@ -99,18 +101,17 @@ v02  =  7.6006865129e-05, /* 0x389f65e0 */
 v03  =  2.5915085189e-07, /* 0x348b216c */
 v04  =  4.4111031494e-10; /* 0x2ff280c2 */
 
-OLM_DLLEXPORT float
-__ieee754_y0f(float x)
+float
+y0f(float x)
 {
 	float z, s,c,ss,cc,u,v;
 	int32_t hx,ix;
 
 	GET_FLOAT_WORD(hx,x);
         ix = 0x7fffffff&hx;
-    /* Y0(NaN) is NaN, y0(-inf) is Nan, y0(inf) is 0  */
-	if(ix>=0x7f800000) return  one/(x+x*x);
-        if(ix==0) return -one/zero;
-        if(hx<0) return zero/zero;
+	if(ix>=0x7f800000) return  vone/(x+x*x);
+	if(ix==0) return -one/vzero;
+	if(hx<0) return vzero/vzero;
         if(ix >= 0x40000000) {  /* |x| >= 2.0 */
         /* y0(x) = sqrt(2/(pi*x))*(p0(x)*sin(x0)+q0(x)*cos(x0))
          * where x0 = x-pi/4
@@ -123,8 +124,7 @@ __ieee754_y0f(float x)
          *              sin(x) +- cos(x) = -cos(2x)/(sin(x) -+ cos(x))
          * to compute the worse one.
          */
-                s = sinf(x);
-                c = cosf(x);
+                sincosf(x, &s, &c);
                 ss = s-c;
                 cc = s+c;
 	/*
@@ -144,12 +144,12 @@ __ieee754_y0f(float x)
                 return z;
 	}
 	if(ix<=0x39000000) {	/* x < 2**-13 */
-	    return(u00 + tpi*__ieee754_logf(x));
+	    return(u00 + tpi*logf(x));
 	}
 	z = x*x;
 	u = u00+z*(u01+z*(u02+z*(u03+z*(u04+z*(u05+z*u06)))));
 	v = one+z*(v01+z*(v02+z*(v03+z*v04)));
-	return(u/v + tpi*(__ieee754_j0f(x)*__ieee754_logf(x)));
+	return(u/v + tpi*(j0f(x)*logf(x)));
 }
 
 /* The asymptotic expansions of pzero is
@@ -224,7 +224,8 @@ static const float pS2[5] = {
   1.4657617569e+01, /* 0x416a859a */
 };
 
-	static float pzerof(float x)
+static __inline float
+pzerof(float x)
 {
 	const float *p,*q;
 	float z,r,s;
@@ -319,8 +320,10 @@ static const float qS2[6] = {
  -5.3109550476e+00, /* 0xc0a9f358 */
 };
 
-	static float qzerof(float x)
+static __inline float
+qzerof(float x)
 {
+	static const float eighth = 0.125;
 	const float *p,*q;
 	float s,r,z;
 	int32_t ix;
@@ -333,5 +336,5 @@ static const float qS2[6] = {
 	z = one/(x*x);
 	r = p[0]+z*(p[1]+z*(p[2]+z*(p[3]+z*(p[4]+z*p[5]))));
 	s = one+z*(q[0]+z*(q[1]+z*(q[2]+z*(q[3]+z*(q[4]+z*q[5])))));
-	return (-(float).125 + r/s)/x;
+	return (r/s-eighth)/x;
 }

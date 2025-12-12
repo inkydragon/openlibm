@@ -1,6 +1,4 @@
-/*	$OpenBSD: e_powl.c,v 1.5 2013/11/12 20:35:19 martynas Exp $	*/
-
-/*
+/*-
  * Copyright (c) 2008 Stephen L. Moshier <steve@moshier.net>
  *
  * Permission to use, copy, modify, and distribute this software for any
@@ -15,6 +13,49 @@
  * ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
  * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
+
+#include <math.h>
+
+#include "math_private.h"
+
+/*
+ * Polynomial evaluator:
+ *  P[0] x^n  +  P[1] x^(n-1)  +  ...  +  P[n]
+ */
+static inline long double
+__polevll(long double x, const long double *PP, int n)
+{
+	long double y;
+	const long double *P;
+
+	P = PP;
+	y = *P++;
+	do {
+		y = y * x + *P++;
+	} while (--n);
+
+	return (y);
+}
+
+/*
+ * Polynomial evaluator:
+ *  x^n  +  P[0] x^(n-1)  +  P[1] x^(n-2)  +  ...  +  P[n]
+ */
+static inline long double
+__p1evll(long double x, const long double *PP, int n)
+{
+	long double y;
+	const long double *P;
+
+	P = PP;
+	n -= 1;
+	y = x + *P++;
+	do {
+		y = y * x + *P++;
+	} while (--n);
+
+	return (y);
+}
 
 /*							powl.c
  *
@@ -73,7 +114,7 @@
  */
 
 #include <float.h>
-#include <openlibm_math.h>
+#include <math.h>
 
 #include "math_private.h"
 
@@ -85,13 +126,13 @@
 /* log(1+x) =  x - .5x^2 + x^3 *  P(z)/Q(z)
  * on the domain  2^(-1/32) - 1  <=  x  <=  2^(1/32) - 1
  */
-static long double P[] = {
+static const long double P[] = {
  8.3319510773868690346226E-4L,
  4.9000050881978028599627E-1L,
  1.7500123722550302671919E0L,
  1.4000100839971580279335E0L,
 };
-static long double Q[] = {
+static const long double Q[] = {
 /* 1.0000000000000000000000E0L,*/
  5.2500282295834889175431E0L,
  8.4000598057587009834666E0L,
@@ -100,7 +141,7 @@ static long double Q[] = {
 /* A[i] = 2^(-i/32), rounded to IEEE long double precision.
  * If i is even, A[i] + B[i/2] gives additional accuracy.
  */
-static long double A[33] = {
+static const long double A[33] = {
  1.0000000000000000000000E0L,
  9.7857206208770013448287E-1L,
  9.5760328069857364691013E-1L,
@@ -135,7 +176,7 @@ static long double A[33] = {
  5.1094857432705833910408E-1L,
  5.0000000000000000000000E-1L,
 };
-static long double B[17] = {
+static const long double B[17] = {
  0.0000000000000000000000E0L,
  2.6176170809902549338711E-20L,
 -1.0126791927256478897086E-20L,
@@ -158,7 +199,7 @@ static long double B[17] = {
 /* 2^x = 1 + x P(x),
  * on the interval -1/32 <= x <= 0
  */
-static long double R[] = {
+static const long double R[] = {
  1.5089970579127659901157E-5L,
  1.5402715328927013076125E-4L,
  1.3333556028915671091390E-3L,
@@ -189,13 +230,13 @@ static long double R[] = {
 static const long double MAXLOGL = 1.1356523406294143949492E4L;
 static const long double MINLOGL = -1.13994985314888605586758E4L;
 static const long double LOGE2L = 6.9314718055994530941723E-1L;
-static volatile long double z;
-static long double w, W, Wa, Wb, ya, yb, u;
+static _Thread_local volatile long double z;
+static _Thread_local long double w, W, Wa, Wb, ya, yb, u;
 static const long double huge = 0x1p10000L;
 #if 0 /* XXX Prevent gcc from erroneously constant folding this. */
 static const long double twom10000 = 0x1p-10000L;
 #else
-static volatile long double twom10000 = 0x1p-10000L;
+static _Thread_local volatile long double twom10000 = 0x1p-10000L;
 #endif
 
 static long double reducl( long double );
@@ -215,9 +256,9 @@ if( x == 1.0L )
 	return( 1.0L );
 
 if( isnan(x) )
-	return( x );
+	return ( nan_mix(x, y) );
 if( isnan(y) )
-	return( y );
+	return ( nan_mix(x, y) );
 
 if( y == 1.0L )
 	return( x );
@@ -466,7 +507,7 @@ return( z );
 
 
 /* Find a multiple of 1/NXT that is within 1/NXT of x. */
-static long double
+static inline long double
 reducl(long double x)
 {
 long double t;
@@ -590,7 +631,7 @@ if( s < (-MAXLOGL+2.0L) )
 /* First bit of the power */
 if( n & 1 )
 	y = x;
-		
+
 else
 	{
 	y = 1.0L;

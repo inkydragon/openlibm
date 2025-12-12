@@ -1,5 +1,4 @@
-/*	$OpenBSD: s_cpow.c,v 1.6 2013/07/03 04:46:36 espie Exp $	*/
-/*
+/*-
  * Copyright (c) 2008 Stephen L. Moshier <steve@moshier.net>
  *
  * Permission to use, copy, modify, and distribute this software for any
@@ -44,13 +43,12 @@
  *
  */
 
+#include <complex.h>
 #include <float.h>
-#include <openlibm_complex.h>
-#include <openlibm_math.h>
-
+#include <math.h>
 #include "math_private.h"
 
-OLM_DLLEXPORT double complex
+double complex
 cpow(double complex a, double complex z)
 {
 	double complex w;
@@ -60,7 +58,10 @@ cpow(double complex a, double complex z)
 	y = cimag (z);
 	absa = cabs (a);
 	if (absa == 0.0) {
-		return (0.0 + 0.0 * I);
+		if (x == 0 && y == 0)
+		    return (CMPLX(1., 0.));
+		else
+		    return (CMPLX(0., 0.));
 	}
 	arga = carg (a);
 	r = pow (absa, x);
@@ -69,10 +70,6 @@ cpow(double complex a, double complex z)
 		r = r * exp (-y * arga);
 		theta = theta + y * log (absa);
 	}
-	w = r * cos (theta) + (r * sin (theta)) * I;
+	w = CMPLX(r * cos (theta),  r * sin (theta));
 	return (w);
 }
-
-#if	LDBL_MANT_DIG == DBL_MANT_DIG
-openlibm_strong_reference(cpow, cpowl);
-#endif	/* LDBL_MANT_DIG == DBL_MANT_DIG */

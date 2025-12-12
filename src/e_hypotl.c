@@ -1,4 +1,3 @@
-/* From: @(#)e_hypot.c 1.3 95/01/18 */
 /*
  * ====================================================
  * Copyright (C) 1993 by Sun Microsystems, Inc. All rights reserved.
@@ -10,15 +9,12 @@
  * ====================================================
  */
 
-#include "cdefs-compat.h"
-//__FBSDID("$FreeBSD: src/lib/msun/src/e_hypotl.c,v 1.3 2011/10/16 05:36:39 das Exp $");
-
 /* long double version of hypot().  See e_hypot.c for most comments. */
 
 #include <float.h>
-#include <openlibm_math.h>
 
 #include "fpmath.h"
+#include "math.h"
 #include "math_private.h"
 
 #define	GET_LDBL_MAN(h, l, v) do {	\
@@ -40,12 +36,12 @@
 #define	MAX_EXP		LDBL_MAX_EXP
 
 #if LDBL_MANL_SIZE > 32
-typedef	u_int64_t man_t;
+typedef	uint64_t man_t;
 #else
-typedef	u_int32_t man_t;
+typedef	uint32_t man_t;
 #endif
 
-OLM_DLLEXPORT long double
+long double
 hypotl(long double x, long double y)
 {
 	long double a=x,b=y,t1,t2,y1,y2,w;
@@ -64,7 +60,7 @@ hypotl(long double x, long double y)
 	   if(ha >= ESW(MAX_EXP)) {	/* Inf or NaN */
 	       man_t manh, manl;
 	       /* Use original arg order iff result is NaN; quieten sNaNs. */
-	       w = fabsl(x+0.0)-fabsl(y+0.0);
+	       w = fabsl(x+0.0L)-fabsl(y+0);
 	       GET_LDBL_MAN(manh,manl,a);
 	       if (manh == LDBL_NBIT && manl == 0) w = a;
 	       GET_LDBL_MAN(manh,manl,b);

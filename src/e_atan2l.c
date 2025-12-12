@@ -1,5 +1,4 @@
 
-/* @(#)e_atan2.c 1.3 95/01/18 */
 /* FreeBSD: head/lib/msun/src/e_atan2.c 176451 2008-02-22 02:30:36Z das */
 /*
  * ====================================================
@@ -13,18 +12,15 @@
  *
  */
 
-#include "cdefs-compat.h"
-//__FBSDID("$FreeBSD: src/lib/msun/src/e_atan2l.c,v 1.3 2008/08/02 19:17:00 das Exp $");
-
 /*
  * See comments in e_atan2.c.
  * Converted to long double by David Schultz <das@FreeBSD.ORG>.
  */
 
 #include <float.h>
-#include <openlibm_math.h>
 
 #include "invtrig.h"
+#include "math.h"
 #include "math_private.h"
 
 static volatile long double
@@ -43,7 +39,7 @@ static const long double
 pi =  3.14159265358979323846264338327950280e+00L;
 #endif
 
-OLM_DLLEXPORT long double
+long double
 atan2l(long double y, long double x)
 {
 	union IEEEl2bits ux, uy;
@@ -62,7 +58,7 @@ atan2l(long double y, long double x)
 	     ((ux.bits.manh&~LDBL_NBIT)|ux.bits.manl)!=0) ||	/* x is NaN */
 	    (expty==BIAS+LDBL_MAX_EXP &&
 	     ((uy.bits.manh&~LDBL_NBIT)|uy.bits.manl)!=0))	/* y is NaN */
-	    return x+y;
+	    return nan_mix(x, y);
 	if (expsignx==BIAS && ((ux.bits.manh&~LDBL_NBIT)|ux.bits.manl)==0)
 	    return atanl(y);					/* x=1.0 */
 	m = ((expsigny>>15)&1)|((expsignx>>14)&2);	/* 2*sign(x)+sign(y) */

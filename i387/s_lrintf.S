@@ -24,9 +24,7 @@
  * SUCH DAMAGE.
  */
 
-#include <i387/bsd_asm.h>
-//__FBSDID("$FreeBSD: src/lib/msun/i387/s_lrintf.S,v 1.3 2011/01/07 16:13:12 kib Exp $")
-	
+#include <machine/asm.h>
 ENTRY(lrintf)
 	flds	4(%esp)
 	subl	$4,%esp
@@ -35,8 +33,4 @@ ENTRY(lrintf)
 	ret
 END(lrintf)
 
-	
-/* Enable stack protection */
-#if defined(__ELF__)
-.section .note.GNU-stack,"",%progbits
-#endif
+	.section .note.GNU-stack,"",%progbits

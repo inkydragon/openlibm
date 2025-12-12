@@ -1,4 +1,3 @@
-/* @(#)s_nextafter.c 5.1 93/09/24 */
 /*
  * ====================================================
  * Copyright (C) 1993 by Sun Microsystems, Inc. All rights reserved.
@@ -10,9 +9,6 @@
  * ====================================================
  */
 
-#include "cdefs-compat.h"
-//__FBSDID("$FreeBSD: src/lib/msun/src/s_nextafter.c,v 1.12 2008/02/22 02:30:35 das Exp $");
-
 /* IEEE functions
  *	nextafter(x,y)
  *	return the next machine floating-point number of x in the
@@ -21,11 +17,11 @@
  */
 
 #include <float.h>
-#include <openlibm_math.h>
 
+#include "math.h"
 #include "math_private.h"
 
-OLM_DLLEXPORT double
+double
 nextafter(double x, double y)
 {
 	volatile double t;
@@ -77,7 +73,7 @@ nextafter(double x, double y)
 }
 
 #if (LDBL_MANT_DIG == 53)
-openlibm_weak_reference(nextafter, nexttoward);
-openlibm_weak_reference(nextafter, nexttowardl);
-openlibm_weak_reference(nextafter, nextafterl);
+__weak_reference(nextafter, nexttoward);
+__weak_reference(nextafter, nexttowardl);
+__weak_reference(nextafter, nextafterl);
 #endif

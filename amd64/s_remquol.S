@@ -28,18 +28,10 @@
  * Based on public-domain remainder routine by J.T. Conklin <jtc@NetBSD.org>.
  */
 
-#include <amd64/bsd_asm.h>
-//__FBSDID("$FreeBSD: src/lib/msun/amd64/s_remquol.S,v 1.2 2011/01/07 16:13:12 kib Exp $"); 
-	
+#include <machine/asm.h>
 ENTRY(remquol)
-#ifndef _WIN64
 	fldt    24(%rsp)
 	fldt    8(%rsp)
-#else
-    fldt    (%r8)
-    fldt    (%rdx)
-    mov     %rcx,%r8
-#endif
 1:	fprem1
 	fstsw	%ax
 	btw	$10,%ax
@@ -64,18 +56,8 @@ ENTRY(remquol)
 	andl	$1,%ecx
 	addl	%ecx,%eax
 /* Store the quotient and return. */
-#ifndef _WIN64
 	movl	%eax,(%rdi)
-#else
-    movl    %eax,(%r9)
-    mov     %r8,%rax
-    movq    $0x0,0x8(%r8)
-    fstpt   (%r8)
-#endif
 	ret
+END(remquol)
 
-	
-/* Enable stack protection */
-#if defined(__ELF__)
-.section .note.GNU-stack,"",%progbits
-#endif
+	.section .note.GNU-stack,"",%progbits

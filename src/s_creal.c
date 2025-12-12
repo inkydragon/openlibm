@@ -1,4 +1,6 @@
 /*-
+ * SPDX-License-Identifier: BSD-2-Clause
+ *
  * Copyright (c) 2004 Stefan Farfeleder
  * All rights reserved.
  *
@@ -22,15 +24,11 @@
  * LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
- *
- * $FreeBSD: src/lib/msun/src/s_creal.c,v 1.1 2004/05/30 09:21:56 stefanf Exp $
  */
 
-#include <openlibm_complex.h>
+#include <complex.h>
 
-#include "math_private.h"
-
-OLM_DLLEXPORT double
+double
 creal(double complex z)
 {
 	return z;

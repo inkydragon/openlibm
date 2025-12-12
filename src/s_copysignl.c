@@ -1,4 +1,6 @@
 /*-
+ * SPDX-License-Identifier: BSD-2-Clause
+ *
  * Copyright (c) 2004 Stefan Farfeleder
  * All rights reserved.
  *
@@ -22,16 +24,13 @@
  * LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
- *
- * $FreeBSD: src/lib/msun/src/s_copysignl.c,v 1.2 2007/01/07 07:54:21 das Exp $
  */
 
-#include <openlibm_math.h>
+#include <math.h>
 
 #include "fpmath.h"
-#include "math_private.h"
 
-OLM_DLLEXPORT long double
+long double
 copysignl(long double x, long double y)
 {
 	union IEEEl2bits ux, uy;

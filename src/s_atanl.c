@@ -1,4 +1,3 @@
-/* @(#)s_atan.c 5.1 93/09/24 */
 /* FreeBSD: head/lib/msun/src/s_atan.c 176451 2008-02-22 02:30:36Z das */
 /*
  * ====================================================
@@ -11,25 +10,22 @@
  * ====================================================
  */
 
-#include "cdefs-compat.h"
-//__FBSDID("$FreeBSD: src/lib/msun/src/s_atanl.c,v 1.1 2008/07/31 22:41:26 das Exp $");
-
 /*
  * See comments in s_atan.c.
  * Converted to long double by David Schultz <das@FreeBSD.ORG>.
  */
 
 #include <float.h>
-#include <openlibm_math.h>
 
 #include "invtrig.h"
+#include "math.h"
 #include "math_private.h"
 
 static const long double
 one   = 1.0,
 huge   = 1.0e300;
 
-OLM_DLLEXPORT long double
+long double
 atanl(long double x)
 {
 	union IEEEl2bits u;

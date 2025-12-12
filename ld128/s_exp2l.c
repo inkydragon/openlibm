@@ -1,4 +1,6 @@
 /*-
+ * SPDX-License-Identifier: BSD-2-Clause
+ *
  * Copyright (c) 2005-2008 David Schultz <das@FreeBSD.ORG>
  * All rights reserved.
  *
@@ -24,15 +26,11 @@
  * SUCH DAMAGE.
  */
 
-#include "cdefs-compat.h"
-//__FBSDID("$FreeBSD: src/lib/msun/ld128/s_exp2l.c,v 1.3 2008/02/13 10:44:44 bde Exp $");
-
 #include <float.h>
-#include <openlibm_math.h>
 #include <stdint.h>
 
 #include "fpmath.h"
-#include "math_private.h"
+#include "math.h"
 
 #define	TBLBITS	7
 #define	TBLSIZE	(1 << TBLBITS)
@@ -40,14 +38,11 @@
 #define	BIAS	(LDBL_MAX_EXP - 1)
 #define	EXPMASK	(BIAS + LDBL_MAX_EXP)
 
-#if 0 /* XXX Prevent gcc from erroneously constant folding this. */
-static const long double twom10000 = 0x1p-10000L;
-#else
-static volatile long double twom10000 = 0x1p-10000L;
-#endif
+static volatile long double
+    huge      = 0x1p10000L,
+    twom10000 = 0x1p-10000L;
 
 static const long double
-    huge      = 0x1p10000L,
     P1        = 0x1.62e42fefa39ef35793c7673007e6p-1L,
     P2	      = 0x1.ebfbdff82c58ea86f16b06ec9736p-3L,
     P3        = 0x1.c6b08d704a0bf8b33a762bad3459p-5L,
@@ -354,7 +349,7 @@ static const float eps[TBLSIZE] = {
  *	Gal, S. and Bachelis, B.  An Accurate Elementary Mathematical Library
  *	for the IEEE Floating Point Standard.  TOMS 17(1), 26-46 (1991).
  */
-OLM_DLLEXPORT long double
+long double
 exp2l(long double x)
 {
 	union IEEEl2bits u, v;

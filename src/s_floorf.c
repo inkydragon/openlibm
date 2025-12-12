@@ -13,9 +13,6 @@
  * ====================================================
  */
 
-#include "cdefs-compat.h"
-//__FBSDID("$FreeBSD: src/lib/msun/src/s_floorf.c,v 1.8 2008/02/22 02:30:35 das Exp $");
-
 /*
  * floorf(x)
  * Return x rounded toward -inf to integral value
@@ -25,13 +22,12 @@
  *	Inexact flag raised if x not equal to floorf(x).
  */
 
-#include <openlibm_math.h>
-
+#include "math.h"
 #include "math_private.h"
 
 static const float huge = 1.0e30;
 
-OLM_DLLEXPORT float
+float
 floorf(float x)
 {
 	int32_t i0,j0;

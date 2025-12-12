@@ -1,4 +1,3 @@
-/* @(#)s_rint.c 5.1 93/09/24 */
 /*
  * ====================================================
  * Copyright (C) 1993 by Sun Microsystems, Inc. All rights reserved.
@@ -9,9 +8,6 @@
  * is preserved.
  * ====================================================
  */
-
-#include "cdefs-compat.h"
-//__FBSDID("$FreeBSD: src/lib/msun/src/s_rint.c,v 1.16 2008/02/22 02:30:35 das Exp $");
 
 /*
  * rint(x)
@@ -24,8 +20,8 @@
  */
 
 #include <float.h>
-#include <openlibm_math.h>
 
+#include "math.h"
 #include "math_private.h"
 
 static const double
@@ -34,7 +30,7 @@ TWO52[2]={
  -4.50359962737049600000e+15, /* 0xC3300000, 0x00000000 */
 };
 
-OLM_DLLEXPORT double
+double
 rint(double x)
 {
 	int32_t i0,j0,sx;
@@ -88,5 +84,5 @@ rint(double x)
 }
 
 #if (LDBL_MANT_DIG == 53)
-openlibm_weak_reference(rint, rintl);
+__weak_reference(rint, rintl);
 #endif

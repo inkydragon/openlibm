@@ -1,4 +1,6 @@
 /*-
+ * SPDX-License-Identifier: BSD-2-Clause
+ *
  * Copyright (c) 2008 David Schultz <das@FreeBSD.ORG>
  * All rights reserved.
  *
@@ -24,15 +26,13 @@
  * SUCH DAMAGE.
  */
 
-#include "cdefs-compat.h"
-//__FBSDID("$FreeBSD: src/lib/msun/src/s_cproj.c,v 1.1 2008/08/07 15:07:48 das Exp $");
-
-#include <openlibm_complex.h>
-#include <openlibm_math.h>
+#include <complex.h>
+#include <float.h>
+#include <math.h>
 
 #include "math_private.h"
 
-OLM_DLLEXPORT double complex
+double complex
 cproj(double complex z)
 {
 
@@ -43,5 +43,5 @@ cproj(double complex z)
 }
 
 #if LDBL_MANT_DIG == 53
-openlibm_weak_reference(cproj, cprojl);
+__weak_reference(cproj, cprojl);
 #endif

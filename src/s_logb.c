@@ -1,4 +1,3 @@
-/* @(#)s_logb.c 5.1 93/09/24 */
 /*
  * ====================================================
  * Copyright (C) 1993 by Sun Microsystems, Inc. All rights reserved.
@@ -10,9 +9,6 @@
  * ====================================================
  */
 
-#include "cdefs-compat.h"
-//__FBSDID("$FreeBSD: src/lib/msun/src/s_logb.c,v 1.12 2008/02/08 01:22:13 bde Exp $");
-
 /*
  * double logb(x)
  * IEEE 754 logb. Included to pass IEEE test suite. Not recommend.
@@ -20,14 +16,14 @@
  */
 
 #include <float.h>
-#include <openlibm_math.h>
 
+#include "math.h"
 #include "math_private.h"
 
 static const double
 two54 = 1.80143985094819840000e+16;	/* 43500000 00000000 */
 
-OLM_DLLEXPORT double
+double
 logb(double x)
 {
 	int32_t lx,ix;
@@ -45,5 +41,5 @@ logb(double x)
 }
 
 #if (LDBL_MANT_DIG == 53)
-openlibm_weak_reference(logb, logbl);
+__weak_reference(logb, logbl);
 #endif

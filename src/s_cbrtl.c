@@ -14,34 +14,29 @@
  * and David A. Schultz.
  */
 
-#include "cdefs-compat.h"
-//__FBSDID("$FreeBSD: src/lib/msun/src/s_cbrtl.c,v 1.1 2011/03/12 19:37:35 kargl Exp $");
-
 #include <float.h>
-#include <openlibm_math.h>
-// VBS
-//#include <ieeefp.h>
-
-#include "fpmath.h"
-#include "math_private.h"
-#if defined(__i386__)
-#include "i387/bsd_ieeefp.h"
+#ifdef __i386__
+#include <ieeefp.h>
 #endif
+
+#include "fpmath.h"    
+#include "math.h"
+#include "math_private.h"
 
 #define	BIAS	(LDBL_MAX_EXP - 1)
 
 static const unsigned
     B1 = 709958130;	/* B1 = (127-127.0/3-0.03306235651)*2**23 */
 
-OLM_DLLEXPORT long double
+long double
 cbrtl(long double x)
 {
 	union IEEEl2bits u, v;
 	long double r, s, t, w;
 	double dr, dt, dx;
 	float ft, fx;
-	u_int32_t hx;
-	u_int16_t expsign;
+	uint32_t hx;
+	uint16_t expsign;
 	int k;
 
 	u.e = x;
@@ -55,23 +50,11 @@ cbrtl(long double x)
 	if (k == BIAS + LDBL_MAX_EXP)
 		return (x + x);
 
-#ifdef __i386__
-	fp_prec_t oprec;
-
-	oprec = fpgetprec();
-	if (oprec != FP_PE)
-		fpsetprec(FP_PE);
-#endif
-
+	ENTERI();
 	if (k == 0) {
 		/* If x = +-0, then cbrt(x) = +-0. */
-		if ((u.bits.manh | u.bits.manl) == 0) {
-#ifdef __i386__
-			if (oprec != FP_PE)
-				fpsetprec(oprec);
-#endif
-			return (x);
-	    	}
+		if ((u.bits.manh | u.bits.manl) == 0)
+			RETURNI(x);
 		/* Adjust subnormal numbers. */
 		u.e *= 0x1.0p514;
 		k = u.bits.exp;
@@ -143,19 +126,15 @@ cbrtl(long double x)
 #endif
 
 	/*
-     	 * Final step Newton iteration to 64 or 113 bits with
+	 * Final step Halley iteration to 64 or 113 bits with
 	 * error < 0.667 ulps
 	 */
 	s=t*t;				/* t*t is exact */
 	r=x/s;				/* error <= 0.5 ulps; |r| < |t| */
 	w=t+t;				/* t+t is exact */
 	r=(r-t)/(w+r);			/* r-t is exact; w+r ~= 3*t */
-	t=t+t*r;			/* error <= 0.5 + 0.5/3 + epsilon */
+	t=t+t*r;			/* error <= (0.5 + 0.5/3) * ulp */
 
 	t *= v.e;
-#ifdef __i386__
-	if (oprec != FP_PE)
-		fpsetprec(oprec);
-#endif
-	return (t);
+	RETURNI(t);
 }

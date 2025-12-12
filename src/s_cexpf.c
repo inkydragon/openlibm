@@ -1,4 +1,6 @@
 /*-
+ * SPDX-License-Identifier: BSD-2-Clause
+ *
  * Copyright (c) 2011 David Schultz <das@FreeBSD.ORG>
  * All rights reserved.
  *
@@ -24,23 +26,20 @@
  * SUCH DAMAGE.
  */
 
-#include "cdefs-compat.h"
-//__FBSDID("$FreeBSD: src/lib/msun/src/s_cexpf.c,v 1.3 2011/10/21 06:27:56 das Exp $");
-
-#include <openlibm_complex.h>
-#include <openlibm_math.h>
+#include <complex.h>
+#include <math.h>
 
 #include "math_private.h"
 
-static const u_int32_t
+static const uint32_t
 exp_ovfl  = 0x42b17218,		/* MAX_EXP * ln2 ~= 88.722839355 */
 cexp_ovfl = 0x43400074;		/* (MAX_EXP - MIN_DENORM_EXP) * ln2 */
 
-OLM_DLLEXPORT float complex
+float complex
 cexpf(float complex z)
 {
-	float x, y, exp_x;
-	u_int32_t hx, hy;
+	float c, exp_x, s, x, y;
+	uint32_t hx, hy;
 
 	x = crealf(z);
 	y = cimagf(z);
@@ -53,8 +52,10 @@ cexpf(float complex z)
 		return (CMPLXF(expf(x), y));
 	GET_FLOAT_WORD(hx, x);
 	/* cexp(0 + I y) = cos(y) + I sin(y) */
-	if ((hx & 0x7fffffff) == 0)
-		return (CMPLXF(cosf(y), sinf(y)));
+	if ((hx & 0x7fffffff) == 0) {
+		sincosf(y, &s, &c);
+		return (CMPLXF(c, s));
+	}
 
 	if (hy >= 0x7f800000) {
 		if ((hx & 0x7fffffff) != 0x7f800000) {
@@ -84,6 +85,7 @@ cexpf(float complex z)
 		 *  -  x = NaN (spurious inexact exception from y)
 		 */
 		exp_x = expf(x);
-		return (CMPLXF(exp_x * cosf(y), exp_x * sinf(y)));
+		sincosf(y, &s, &c);
+		return (CMPLXF(exp_x * c, exp_x * s));
 	}
 }

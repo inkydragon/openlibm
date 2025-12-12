@@ -1,4 +1,6 @@
 /*-
+ * SPDX-License-Identifier: BSD-2-Clause
+ *
  * Copyright (c) 2007 Steven G. Kargl
  * All rights reserved.
  *
@@ -24,27 +26,32 @@
  * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "cdefs-compat.h"
-//__FBSDID("$FreeBSD: src/lib/msun/src/s_cosl.c,v 1.3 2011/05/30 19:41:28 kargl Exp $");
-
 /*
  * Limited testing on pseudorandom numbers drawn within [-2e8:4e8] shows
  * an accuracy of <= 0.7412 ULP.
  */
 
 #include <float.h>
-#include <openlibm_math.h>
+#ifdef __i386__
+#include <ieeefp.h>
+#endif
 
+#include "fpmath.h"
+#include "math.h"
 #include "math_private.h"
 #if LDBL_MANT_DIG == 64
 #include "../ld80/e_rem_pio2l.h"
+static const union IEEEl2bits
+pio4u = LD80C(0xc90fdaa22168c235, -00001,  7.85398163397448309628e-01L);
+#define	pio4	(pio4u.e)
 #elif LDBL_MANT_DIG == 113
 #include "../ld128/e_rem_pio2l.h"
+long double pio4 =  7.85398163397448309615660845819875721e-1L;
 #else
 #error "Unsupported long double format"
 #endif
 
-OLM_DLLEXPORT long double
+long double
 cosl(long double x)
 {
 	union IEEEl2bits z;
@@ -63,9 +70,11 @@ cosl(long double x)
 	if (z.bits.exp == 32767)
 		return ((x - x) / (x - x));
 
+	ENTERI();
+
 	/* Optimize the case where x is already within range. */
-	if (z.e < M_PI_4)
-		return (__kernel_cosl(z.e, 0));
+	if (z.e < pio4)
+		RETURNI(__kernel_cosl(z.e, 0));
 
 	e0 = __ieee754_rem_pio2l(x, y);
 	hi = y[0];
@@ -86,5 +95,5 @@ cosl(long double x)
 	    break;
 	}
 	
-	return (hi);
+	RETURNI(hi);
 }

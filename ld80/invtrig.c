@@ -1,4 +1,6 @@
 /*-
+ * SPDX-License-Identifier: BSD-2-Clause
+ *
  * Copyright (c) 2008 David Schultz <das@FreeBSD.ORG>
  * All rights reserved.
  *
@@ -24,10 +26,7 @@
  * SUCH DAMAGE.
  */
 
-#include "cdefs-compat.h"
-//__FBSDID("$FreeBSD: src/lib/msun/ld80/invtrig.c,v 1.1 2008/07/31 22:41:26 das Exp $");
-
-#include "ld80/invtrig.h"
+#include "invtrig.h"
 
 /*
  * asinl() and acosl()

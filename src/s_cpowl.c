@@ -1,6 +1,4 @@
-/*	$OpenBSD: s_cpowl.c,v 1.2 2011/07/20 19:28:33 martynas Exp $	*/
-
-/*
+/*-
  * Copyright (c) 2008 Stephen L. Moshier <steve@moshier.net>
  *
  * Permission to use, copy, modify, and distribute this software for any
@@ -45,12 +43,11 @@
  *
  */
 
-#include <openlibm_complex.h>
-#include <openlibm_math.h>
-
+#include <complex.h>
+#include <math.h>
 #include "math_private.h"
 
-OLM_DLLEXPORT long double complex
+long double complex
 cpowl(long double complex a, long double complex z)
 {
 	long double complex w;
@@ -60,7 +57,10 @@ cpowl(long double complex a, long double complex z)
 	y = cimagl(z);
 	absa = cabsl(a);
 	if (absa == 0.0L) {
-		return (0.0L + 0.0L * I);
+		if (x == 0 && y == 0)
+		    return (CMPLXL(1.L, 0.L));
+		else
+		    return (CMPLXL(0.L, 0.L));
 	}
 	arga = cargl(a);
 	r = powl(absa, x);
@@ -69,6 +69,6 @@ cpowl(long double complex a, long double complex z)
 		r = r * expl(-y * arga);
 		theta = theta + y * logl(absa);
 	}
-	w = r * cosl(theta) + (r * sinl(theta)) * I;
+	w = CMPLXL(r * cosl(theta), r * sinl(theta));
 	return (w);
 }

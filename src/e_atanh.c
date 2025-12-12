@@ -1,5 +1,4 @@
 
-/* @(#)e_atanh.c 1.3 95/01/18 */
 /*
  * ====================================================
  * Copyright (C) 1993 by Sun Microsystems, Inc. All rights reserved.
@@ -12,10 +11,7 @@
  *
  */
 
-#include "cdefs-compat.h"
-//__FBSDID("$FreeBSD: src/lib/msun/src/e_atanh.c,v 1.8 2008/02/22 02:30:34 das Exp $");
-
-/* __ieee754_atanh(x)
+/* atanh(x)
  * Method :
  *    1.Reduced x to positive by atanh(-x) = -atanh(x)
  *    2.For x>=0.5
@@ -34,15 +30,15 @@
  */
 
 #include <float.h>
-#include <openlibm_math.h>
 
+#include "math.h"
 #include "math_private.h"
 
 static const double one = 1.0, huge = 1e300;
 static const double zero = 0.0;
 
-OLM_DLLEXPORT double
-__ieee754_atanh(double x)
+double
+atanh(double x)
 {
 	double t;
 	int32_t hx,ix;
@@ -63,6 +59,6 @@ __ieee754_atanh(double x)
 	if(hx>=0) return t; else return -t;
 }
 
-#if (LDBL_MANT_DIG == 53)
-openlibm_weak_reference(atanh, atanhl);
+#if LDBL_MANT_DIG == 53
+__weak_reference(atanh, atanhl);
 #endif

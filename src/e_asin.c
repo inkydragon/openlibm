@@ -1,20 +1,16 @@
 
-/* @(#)e_asin.c 1.3 95/01/18 */
 /*
  * ====================================================
  * Copyright (C) 1993 by Sun Microsystems, Inc. All rights reserved.
  *
  * Developed at SunSoft, a Sun Microsystems, Inc. business.
  * Permission to use, copy, modify, and distribute this
- * software is freely granted, provided that this notice 
+ * software is freely granted, provided that this notice
  * is preserved.
  * ====================================================
  */
 
-#include "cdefs-compat.h"
-//__FBSDID("$FreeBSD: src/lib/msun/src/e_asin.c,v 1.15 2011/02/10 07:37:50 das Exp $");
-
-/* __ieee754_asin(x)
+/* asin(x)
  * Method :                  
  *	Since  asin(x) = x + x^3/6 + x^5*3/40 + x^7*15/336 + ...
  *	we approximate asin(x) on [0,0.5] by
@@ -45,8 +41,8 @@
  */
 
 #include <float.h>
-#include <openlibm_math.h>
 
+#include "math.h"
 #include "math_private.h"
 
 static const double
@@ -67,8 +63,8 @@ qS2 =  2.02094576023350569471e+00, /* 0x40002AE5, 0x9C598AC8 */
 qS3 = -6.88283971605453293030e-01, /* 0xBFE6066C, 0x1B8D0159 */
 qS4 =  7.70381505559019352791e-02; /* 0x3FB3B8C5, 0xB12E9282 */
 
-OLM_DLLEXPORT double
-__ieee754_asin(double x)
+double
+asin(double x)
 {
 	double t=0.0,w,p,q,c,r,s;
 	int32_t hx,ix;
@@ -113,5 +109,5 @@ __ieee754_asin(double x)
 }
 
 #if LDBL_MANT_DIG == 53
-openlibm_weak_reference(asin, asinl);
+__weak_reference(asin, asinl);
 #endif

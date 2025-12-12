@@ -1,4 +1,6 @@
 /*-
+ * SPDX-License-Identifier: BSD-2-Clause
+ *
  * Copyright (c) 2007 David Schultz
  * All rights reserved.
  *
@@ -22,16 +24,14 @@
  * LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
- *
- * $FreeBSD: src/lib/msun/ld128/s_nanl.c,v 1.3 2008/03/02 20:16:55 das Exp $
  */
 
-#include <openlibm_math.h>
+#include <math.h>
 
 #include "fpmath.h"
-#include "math_private.h"
+#include "../src/math_private.h"
 
-OLM_DLLEXPORT long double
+long double
 nanl(const char *s)
 {
 	union {
@@ -39,7 +39,7 @@ nanl(const char *s)
 		uint32_t bits[4];
 	} u;
 
-	__scan_nan(u.bits, 4, s);
+	_scan_nan(u.bits, 4, s);
 	u.ieee.bits.exp = 0x7fff;
 	u.ieee.bits.manh |= 1ULL << 47;	/* make it a quiet NaN */
 	return (u.ieee.e);

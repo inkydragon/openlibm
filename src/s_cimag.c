@@ -1,4 +1,6 @@
 /*-
+ * SPDX-License-Identifier: BSD-2-Clause
+ *
  * Copyright (c) 2004 Stefan Farfeleder
  * All rights reserved.
  *
@@ -22,16 +24,15 @@
  * LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
- *
- * $FreeBSD: src/lib/msun/src/s_cimag.c,v 1.3 2009/03/14 18:24:15 das Exp $
  */
 
-#include <openlibm_complex.h>
-
+#include <complex.h>
 #include "math_private.h"
 
-OLM_DLLEXPORT double
+double
 cimag(double complex z)
 {
-	return (__imag__ z);
+	const double_complex z1 = { .f = z };
+
+	return (IMAGPART(z1));
 }

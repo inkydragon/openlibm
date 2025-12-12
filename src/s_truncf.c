@@ -1,4 +1,3 @@
-/* @(#)s_floor.c 5.1 93/09/24 */
 /*
  * ====================================================
  * Copyright (C) 1993 by Sun Microsystems, Inc. All rights reserved.
@@ -10,9 +9,6 @@
  * ====================================================
  */
 
-#include "cdefs-compat.h"
-//__FBSDID("$FreeBSD: src/lib/msun/src/s_truncf.c,v 1.1 2004/06/20 09:25:43 das Exp $");
-
 /*
  * truncf(x)
  * Return x rounded toward 0 to integral value
@@ -22,13 +18,12 @@
  *	Inexact flag raised if x not equal to truncf(x).
  */
 
-#include <openlibm_math.h>
-
+#include "math.h"
 #include "math_private.h"
 
 static const float huge = 1.0e30F;
 
-OLM_DLLEXPORT float
+float
 truncf(float x)
 {
 	int32_t i0,j0;

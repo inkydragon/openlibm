@@ -1,5 +1,4 @@
 
-/* @(#)k_rem_pio2.c 1.3 95/01/18 */
 /*
  * ====================================================
  * Copyright (C) 1993 by Sun Microsystems, Inc. All rights reserved.
@@ -10,9 +9,6 @@
  * is preserved.
  * ====================================================
  */
-
-#include "cdefs-compat.h"
-//__FBSDID("$FreeBSD: src/lib/msun/src/k_rem_pio2.c,v 1.11 2008/02/25 11:43:20 bde Exp $");
 
 /*
  * __kernel_rem_pio2(x,y,e0,nx,prec)
@@ -45,14 +41,14 @@
  *			z    = (z-x[i])*2**24
  *
  *
- *	y[]	ouput result in an array of double precision numbers.
+ *	y[]	output result in an array of double precision numbers.
  *		The dimension of y[] is:
  *			24-bit  precision	1
  *			53-bit  precision	2
  *			64-bit  precision	2
  *			113-bit precision	3
  *		The actual value is the sum of them. Thus for 113-bit
- *		precison, one may have to do something like:
+ *		precision, one may have to do something like:
  *
  *		long double t,w,r_head, r_tail;
  *		t = (long double)y[2] + (long double)y[1];
@@ -83,7 +79,7 @@
  *		jk+1 must be 2 larger than you might expect so that our
  *		recomputation test works. (Up to 24 bits in the integer
  *		part (the 24 bits of it that we compute) and 23 bits in
- *		the fraction part may be lost to cancelation before we
+ *		the fraction part may be lost to cancellation before we
  *		recompute.)
  *
  * 	jz	local integer variable indicating the number of 
@@ -130,8 +126,8 @@
  */
 
 #include <float.h>
-#include <openlibm_math.h>
 
+#include "math.h"
 #include "math_private.h"
 
 static const int init_jk[] = {3,4,4,6}; /* initial value for jk */
@@ -290,7 +286,7 @@ one    = 1.0,
 two24   =  1.67772160000000000000e+07, /* 0x41700000, 0x00000000 */
 twon24  =  5.96046447753906250000e-08; /* 0x3E700000, 0x00000000 */
 
-OLM_DLLEXPORT int
+int
 __kernel_rem_pio2(double *x, double *y, int e0, int nx, int prec)
 {
 	int32_t jz,jx,jv,jp,jk,carry,n,iq[20],i,j,k,m,q0,ih;
@@ -311,8 +307,7 @@ __kernel_rem_pio2(double *x, double *y, int e0, int nx, int prec)
 
     /* compute q[0],q[1],...q[jk] */
 	for (i=0;i<=jk;i++) {
-	    for(j=0,fw=0.0;j<=jx;j++) fw += x[j]*f[jx+i-j];
-	    q[i] = fw;
+	    for(j=0,fw=0.0;j<=jx;j++) fw += x[j]*f[jx+i-j]; q[i] = fw;
 	}
 
 	jz = jk;

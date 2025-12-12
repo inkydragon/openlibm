@@ -1,5 +1,4 @@
 
-/* @(#)e_atan2.c 1.3 95/01/18 */
 /*
  * ====================================================
  * Copyright (C) 1993 by Sun Microsystems, Inc. All rights reserved.
@@ -12,10 +11,7 @@
  *
  */
 
-#include "cdefs-compat.h"
-//__FBSDID("$FreeBSD: src/lib/msun/src/e_atan2.c,v 1.14 2008/08/02 19:17:00 das Exp $");
-
-/* __ieee754_atan2(y,x)
+/* atan2(y,x)
  * Method :
  *	1. Reduce y to positive by atan2(y,x)=-atan2(-y,x).
  *	2. Reduce x to positive by (if x and y are unexceptional): 
@@ -43,8 +39,8 @@
  */
 
 #include <float.h>
-#include <openlibm_math.h>
 
+#include "math.h"
 #include "math_private.h"
 
 static volatile double
@@ -57,8 +53,8 @@ pi      = 3.1415926535897931160E+00; /* 0x400921FB, 0x54442D18 */
 static volatile double
 pi_lo   = 1.2246467991473531772E-16; /* 0x3CA1A626, 0x33145C07 */
 
-OLM_DLLEXPORT double
-__ieee754_atan2(double y, double x)
+double
+atan2(double y, double x)
 {
 	double z;
 	int32_t k,m,hx,hy,ix,iy;
@@ -70,7 +66,7 @@ __ieee754_atan2(double y, double x)
 	iy = hy&0x7fffffff;
 	if(((ix|((lx|-lx)>>31))>0x7ff00000)||
 	   ((iy|((ly|-ly)>>31))>0x7ff00000))	/* x or y is NaN */
-	   return x+y;
+	    return nan_mix(x, y);
 	if(hx==0x3ff00000&&lx==0) return atan(y);   /* x=1.0 */
 	m = ((hy>>31)&1)|((hx>>30)&2);	/* 2*sign(x)+sign(y) */
 
@@ -125,5 +121,5 @@ __ieee754_atan2(double y, double x)
 }
 
 #if LDBL_MANT_DIG == 53
-openlibm_weak_reference(atan2, atan2l);
+__weak_reference(atan2, atan2l);
 #endif

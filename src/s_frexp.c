@@ -1,4 +1,3 @@
-/* @(#)s_frexp.c 5.1 93/09/24 */
 /*
  * ====================================================
  * Copyright (C) 1993 by Sun Microsystems, Inc. All rights reserved.
@@ -9,9 +8,6 @@
  * is preserved.
  * ====================================================
  */
-
-#include "cdefs-compat.h"
-//__FBSDID("$FreeBSD: src/lib/msun/src/s_frexp.c,v 1.11 2008/02/22 02:30:35 das Exp $");
 
 /*
  * for non-zero x
@@ -24,14 +20,14 @@
  */
 
 #include <float.h>
-#include <openlibm_math.h>
 
+#include "math.h"
 #include "math_private.h"
 
 static const double
 two54 =  1.80143985094819840000e+16; /* 0x43500000, 0x00000000 */
 
-OLM_DLLEXPORT double
+double
 frexp(double x, int *eptr)
 {
 	int32_t hx, ix, lx;
@@ -52,5 +48,5 @@ frexp(double x, int *eptr)
 }
 
 #if (LDBL_MANT_DIG == 53)
-openlibm_weak_reference(frexp, frexpl);
+__weak_reference(frexp, frexpl);
 #endif

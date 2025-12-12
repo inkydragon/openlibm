@@ -1,4 +1,6 @@
 /*-
+ * SPDX-License-Identifier: BSD-2-Clause
+ *
  * Copyright (c) 2005-2011 David Schultz <das@FreeBSD.ORG>
  * All rights reserved.
  *
@@ -24,15 +26,19 @@
  * SUCH DAMAGE.
  */
 
-#include "cdefs-compat.h"
-//__FBSDID("$FreeBSD: src/lib/msun/src/s_fma.c,v 1.8 2011/10/21 06:30:43 das Exp $");
-
+#include <fenv.h>
 #include <float.h>
-#include <openlibm_fenv.h>
-#include <openlibm_math.h>
+#include <math.h>
 
 #include "math_private.h"
 
+#ifdef USE_BUILTIN_FMA
+double
+fma(double x, double y, double z)
+{
+	return (__builtin_fma(x, y, z));
+}
+#else
 /*
  * A struct dd represents a floating-point number with twice the precision
  * of a double.  We maintain the invariant that "hi" stores the 53 high-order
@@ -75,7 +81,7 @@ static inline double
 add_adjusted(double a, double b)
 {
 	struct dd sum;
-	u_int64_t hibits, lobits;
+	uint64_t hibits, lobits;
 
 	sum = dd_add(a, b);
 	if (sum.lo != 0) {
@@ -99,7 +105,7 @@ static inline double
 add_and_denormalize(double a, double b, int scale)
 {
 	struct dd sum;
-	u_int64_t hibits, lobits;
+	uint64_t hibits, lobits;
 	int bits_lost;
 
 	sum = dd_add(a, b);
@@ -174,7 +180,7 @@ dd_mul(double a, double b)
  * Hardware instructions should be used on architectures that support it,
  * since this implementation will likely be several times slower.
  */
-OLM_DLLEXPORT double
+double
 fma(double x, double y, double z)
 {
 	double xs, ys, zs, adj;
@@ -238,6 +244,8 @@ fma(double x, double y, double z)
 		zs = copysign(DBL_MIN, zs);
 
 	fesetround(FE_TONEAREST);
+	/* work around clang issue #8472 */
+	volatile double vxs = xs;
 
 	/*
 	 * Basic approach for round-to-nearest:
@@ -247,19 +255,19 @@ fma(double x, double y, double z)
 	 *     adj = xy.lo + r.lo		(inexact; low bit is sticky)
 	 *     result = r.hi + adj		(correctly rounded)
 	 */
-	xy = dd_mul(xs, ys);
+	xy = dd_mul(vxs, ys);
 	r = dd_add(xy.hi, zs);
 
 	spread = ex + ey;
 
-	if (r.hi == 0.0) {
+	if (r.hi == 0.0 && xy.lo == 0) {
 		/*
 		 * When the addends cancel to 0, ensure that the result has
 		 * the correct sign.
 		 */
 		fesetround(oround);
 		volatile double vzs = zs; /* XXX gcc CSE bug workaround */
-		return (xy.hi + vzs + ldexp(xy.lo, spread));
+		return (xy.hi + vzs);
 	}
 
 	if (oround != FE_TONEAREST) {
@@ -268,7 +276,9 @@ fma(double x, double y, double z)
 		 * rounding modes.
 		 */
 		fesetround(oround);
-		adj = r.lo + xy.lo;
+		/* work around clang issue #8472 */
+		volatile double vrlo = r.lo;
+		adj = vrlo + xy.lo;
 		return (ldexp(r.hi + adj, spread));
 	}
 
@@ -278,7 +288,8 @@ fma(double x, double y, double z)
 	else
 		return (add_and_denormalize(r.hi, adj, spread));
 }
+#endif /* !USE_BUILTIN_FMA */
 
 #if (LDBL_MANT_DIG == 53)
-openlibm_weak_reference(fma, fmal);
+__weak_reference(fma, fmal);
 #endif

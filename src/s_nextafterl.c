@@ -1,4 +1,3 @@
-/* @(#)s_nextafter.c 5.1 93/09/24 */
 /*
  * ====================================================
  * Copyright (C) 1993 by Sun Microsystems, Inc. All rights reserved.
@@ -10,9 +9,6 @@
  * ====================================================
  */
 
-#include "cdefs-compat.h"
-//__FBSDID("$FreeBSD: src/lib/msun/src/s_nextafterl.c,v 1.2 2008/02/22 02:30:36 das Exp $");
-
 /* IEEE functions
  *	nextafter(x,y)
  *	return the next machine floating-point number of x in the
@@ -21,16 +17,16 @@
  */
 
 #include <float.h>
-#include <openlibm_math.h>
 
 #include "fpmath.h"
+#include "math.h"
 #include "math_private.h"
 
 #if LDBL_MAX_EXP != 0x4000
 #error "Unsupported long double format"
 #endif
 
-OLM_DLLEXPORT long double
+long double
 nextafterl(long double x, long double y)
 {
 	volatile long double t;
@@ -52,7 +48,7 @@ nextafterl(long double x, long double y)
 	    t = ux.e*ux.e;
 	    if(t==ux.e) return t; else return ux.e; /* raise underflow flag */
 	}
-	if((x>0.0) ^ (x<y)) {			/* x -= ulp */
+	if(x>0.0 ^ x<y) {			/* x -= ulp */
 	    if(ux.bits.manl==0) {
 		if ((ux.bits.manh&~LDBL_NBIT)==0)
 		    ux.bits.exp -= 1;
@@ -77,4 +73,4 @@ nextafterl(long double x, long double y)
 	return ux.e;
 }
 
-openlibm_strong_reference(nextafterl, nexttowardl);
+__strong_reference(nextafterl, nexttowardl);

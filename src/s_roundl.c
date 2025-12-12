@@ -1,4 +1,6 @@
 /*-
+ * SPDX-License-Identifier: BSD-2-Clause
+ *
  * Copyright (c) 2003, Steven G. Kargl
  * All rights reserved.
  *
@@ -24,30 +26,36 @@
  * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "cdefs-compat.h"
-//__FBSDID("$FreeBSD: src/lib/msun/src/s_roundl.c,v 1.2 2005/12/02 13:45:06 bde Exp $");
+#include <float.h>
+#ifdef __i386__
+#include <ieeefp.h>
+#endif
 
-#include <openlibm_math.h>
-
+#include "fpmath.h"
+#include "math.h"
 #include "math_private.h"
 
-OLM_DLLEXPORT long double
+long double
 roundl(long double x)
 {
 	long double t;
+	uint16_t hx;
 
-	if (!isfinite(x))
-		return (x);
+	GET_LDBL_EXPSIGN(hx, x);
+	if ((hx & 0x7fff) == 0x7fff)
+		return (x + x);
 
-	if (x >= 0.0) {
+	ENTERI();
+
+	if (!(hx & 0x8000)) {
 		t = floorl(x);
-		if (t - x <= -0.5)
-			t += 1.0;
-		return (t);
+		if (t - x <= -0.5L)
+			t += 1;
+		RETURNI(t);
 	} else {
 		t = floorl(-x);
-		if (t + x <= -0.5)
-			t += 1.0;
-		return (-t);
+		if (t + x <= -0.5L)
+			t += 1;
+		RETURNI(-t);
 	}
 }

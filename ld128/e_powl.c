@@ -1,4 +1,4 @@
-/*
+/*-
  * ====================================================
  * Copyright (C) 1993 by Sun Microsystems, Inc. All rights reserved.
  *
@@ -32,7 +32,7 @@
  *	1. Compute and return log2(x) in two pieces:
  *		log2(x) = w1 + w2,
  *	   where w1 has 113-53 = 60 bit trailing zeros.
- *	2. Perform y*log2(x) = n+y' by simulating muti-precision
+ *	2. Perform y*log2(x) = n+y' by simulating multi-precision
  *	   arithmetic, where |y'|<=0.5.
  *	3. Return x**y = 2**n*exp(y'*log2)
  *
@@ -59,7 +59,8 @@
  *
  */
 
-#include <openlibm_math.h>
+#include <float.h>
+#include <math.h>
 
 #include "math_private.h"
 
@@ -178,7 +179,7 @@ powl(long double x, long double y)
       || (iy > 0x7fff0000)
       || ((iy == 0x7fff0000)
 	  && ((q.parts32.mswlo | q.parts32.lswhi | q.parts32.lswlo) != 0)))
-    return x + y;
+    return nan_mix(x, y);
 
   /* determine if y is an odd int when x < 0
    * yisint = 0       ... y is not an integer

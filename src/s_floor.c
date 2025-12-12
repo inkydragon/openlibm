@@ -1,4 +1,3 @@
-/* @(#)s_floor.c 5.1 93/09/24 */
 /*
  * ====================================================
  * Copyright (C) 1993 by Sun Microsystems, Inc. All rights reserved.
@@ -10,9 +9,6 @@
  * ====================================================
  */
 
-#include "cdefs-compat.h"
-//__FBSDID("$FreeBSD: src/lib/msun/src/s_floor.c,v 1.11 2008/02/15 07:01:40 bde Exp $");
-
 /*
  * floor(x)
  * Return x rounded toward -inf to integral value
@@ -23,13 +19,13 @@
  */
 
 #include <float.h>
-#include <openlibm_math.h>
 
+#include "math.h"
 #include "math_private.h"
 
 static const double huge = 1.0e300;
 
-OLM_DLLEXPORT double
+double
 floor(double x)
 {
 	int32_t i0,i1,j0;
@@ -74,5 +70,5 @@ floor(double x)
 }
 
 #if LDBL_MANT_DIG == 53
-openlibm_weak_reference(floor, floorl);
+__weak_reference(floor, floorl);
 #endif

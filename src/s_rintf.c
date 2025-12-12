@@ -13,13 +13,10 @@
  * ====================================================
  */
 
-#include "cdefs-compat.h"
-//__FBSDID("$FreeBSD: src/lib/msun/src/s_rintf.c,v 1.12 2008/02/22 02:30:35 das Exp $");
-
 #include <float.h>
-#include <openlibm_math.h>
 #include <stdint.h>
 
+#include "math.h"
 #include "math_private.h"
 
 static const float
@@ -28,7 +25,7 @@ TWO23[2]={
  -8.3886080000e+06, /* 0xcb000000 */
 };
 
-OLM_DLLEXPORT float
+float
 rintf(float x)
 {
 	int32_t i0,j0,sx;

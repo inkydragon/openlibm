@@ -1,5 +1,4 @@
 
-/* @(#)e_hypot.c 1.3 95/01/18 */
 /*
  * ====================================================
  * Copyright (C) 1993 by Sun Microsystems, Inc. All rights reserved.
@@ -11,10 +10,7 @@
  * ====================================================
  */
 
-#include "cdefs-compat.h"
-//__FBSDID("$FreeBSD: src/lib/msun/src/e_hypot.c,v 1.14 2011/10/15 07:00:28 das Exp $");
-
-/* __ieee754_hypot(x,y)
+/* hypot(x,y)
  *
  * Method :                  
  *	If (assume round-to-nearest) z=x*x+y*y 
@@ -47,12 +43,12 @@
  */
 
 #include <float.h>
-#include <openlibm_math.h>
 
+#include "math.h"
 #include "math_private.h"
 
-OLM_DLLEXPORT double
-__ieee754_hypot(double x, double y)
+double
+hypot(double x, double y)
 {
 	double a,b,t1,t2,y1,y2,w;
 	int32_t j,k,ha,hb;
@@ -70,7 +66,7 @@ __ieee754_hypot(double x, double y)
 	   if(ha >= 0x7ff00000) {	/* Inf or NaN */
 	       u_int32_t low;
 	       /* Use original arg order iff result is NaN; quieten sNaNs. */
-	       w = fabs(x+0.0)-fabs(y+0.0);
+	       w = fabsl(x+0.0L)-fabs(y+0);
 	       GET_LOW_WORD(low,a);
 	       if(((ha&0xfffff)|low)==0) w = a;
 	       GET_LOW_WORD(low,b);
@@ -118,14 +114,12 @@ __ieee754_hypot(double x, double y)
 	    w  = sqrt(t1*y1-(w*(-w)-(t1*y2+t2*b)));
 	}
 	if(k!=0) {
-	    u_int32_t high;
-	    t1 = 1.0;
-	    GET_HIGH_WORD(high,t1);
-	    SET_HIGH_WORD(t1,high+(k<<20));
+	    t1 = 0.0;
+	    SET_HIGH_WORD(t1,(1023+k)<<20);
 	    return t1*w;
 	} else return w;
 }
 
 #if LDBL_MANT_DIG == 53
-openlibm_weak_reference(hypot, hypotl);
+__weak_reference(hypot, hypotl);
 #endif

@@ -1,4 +1,3 @@
-/* @(#)s_modf.c 5.1 93/09/24 */
 /*
  * ====================================================
  * Copyright (C) 1993 by Sun Microsystems, Inc. All rights reserved.
@@ -20,13 +19,12 @@
  *	No exception.
  */
 
-#include <openlibm_math.h>
-
+#include "math.h"
 #include "math_private.h"
 
 static const double one = 1.0;
 
-OLM_DLLEXPORT double
+double
 modf(double x, double *iptr)
 {
 	int32_t i0,i1,j0;

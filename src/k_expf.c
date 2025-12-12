@@ -1,4 +1,6 @@
 /*-
+ * SPDX-License-Identifier: BSD-2-Clause
+ *
  * Copyright (c) 2011 David Schultz <das@FreeBSD.ORG>
  * All rights reserved.
  *
@@ -24,15 +26,12 @@
  * SUCH DAMAGE.
  */
 
-#include "cdefs-compat.h"
-//__FBSDID("$FreeBSD: src/lib/msun/src/k_expf.c,v 1.1 2011/10/21 06:27:56 das Exp $");
+#include <complex.h>
 
-#include <openlibm_complex.h>
-#include <openlibm_math.h>
-
+#include "math.h"
 #include "math_private.h"
 
-static const u_int32_t k = 235;			/* constant for reduction */
+static const uint32_t k = 235;			/* constant for reduction */
 static const float kln2 =  162.88958740F;	/* k * ln2 */
 
 /*
@@ -44,8 +43,8 @@ static const float kln2 =  162.88958740F;	/* k * ln2 */
 static float
 __frexp_expf(float x, int *expt)
 {
-	double exp_x;
-	u_int32_t hx;
+	float exp_x;
+	uint32_t hx;
 
 	exp_x = expf(x - kln2);
 	GET_FLOAT_WORD(hx, exp_x);
@@ -54,7 +53,7 @@ __frexp_expf(float x, int *expt)
 	return (exp_x);
 }
 
-OLM_DLLEXPORT float
+float
 __ldexp_expf(float x, int expt)
 {
 	float exp_x, scale;
@@ -66,10 +65,10 @@ __ldexp_expf(float x, int expt)
 	return (exp_x * scale);
 }
 
-OLM_DLLEXPORT float complex
+float complex
 __ldexp_cexpf(float complex z, int expt)
 {
-	float x, y, exp_x, scale1, scale2;
+	float c, exp_x, s, scale1, scale2, x, y;
 	int ex_expt, half_expt;
 
 	x = crealf(z);
@@ -82,6 +81,7 @@ __ldexp_cexpf(float complex z, int expt)
 	half_expt = expt - half_expt;
 	SET_FLOAT_WORD(scale2, (0x7f + half_expt) << 23);
 
-	return (CMPLXF(cosf(y) * exp_x * scale1 * scale2,
-	    sinf(y) * exp_x * scale1 * scale2));
+	sincosf(y, &s, &c);
+	return (CMPLXF(c * exp_x * scale1 * scale2,
+	    s * exp_x * scale1 * scale2));
 }

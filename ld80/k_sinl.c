@@ -1,4 +1,3 @@
-/* From: @(#)k_sin.c 1.3 95/01/18 */
 /*
  * ====================================================
  * Copyright (C) 1993 by Sun Microsystems, Inc. All rights reserved.
@@ -10,9 +9,6 @@
  * is preserved.
  * ====================================================
  */
-
-#include "cdefs-compat.h"
-//__FBSDID("$FreeBSD: src/lib/msun/ld80/k_sinl.c,v 1.1 2008/02/17 07:32:14 das Exp $");
 
 /*
  * ld80 version of k_sin.c.  See ../src/k_sin.c for most comments.

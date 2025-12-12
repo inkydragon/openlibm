@@ -5,14 +5,12 @@
  * Placed into the Public Domain, 1994.
  */
 
-#include <openlibm_complex.h>
-#include <openlibm_math.h>
-
+#include <complex.h>
+#include <math.h>
 #include "math_private.h"
 
-OLM_DLLEXPORT float
-cabsf(z)
-	float complex z;
+float
+cabsf(float complex z)
 {
 
 	return hypotf(crealf(z), cimagf(z));

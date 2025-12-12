@@ -13,14 +13,20 @@
  * ====================================================
  */
 
-#include <openlibm_math.h>
-
+#include "math.h"
 #include "math_private.h"
 
+#ifdef USE_BUILTIN_SQRTF
+float
+sqrtf(float x)
+{
+	return (__builtin_sqrtf(x));
+}
+#else
 static	const float	one	= 1.0, tiny=1.0e-30;
 
-OLM_DLLEXPORT float
-__ieee754_sqrtf(float x)
+float
+sqrtf(float x)
 {
 	float z;
 	int32_t sign = (int)0x80000000;
@@ -84,3 +90,4 @@ __ieee754_sqrtf(float x)
 	SET_FLOAT_WORD(z,ix);
 	return z;
 }
+#endif

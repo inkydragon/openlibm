@@ -1,5 +1,4 @@
 
-/* @(#)e_sinh.c 1.3 95/01/18 */
 /*
  * ====================================================
  * Copyright (C) 1993 by Sun Microsystems, Inc. All rights reserved.
@@ -11,10 +10,7 @@
  * ====================================================
  */
 
-#include "cdefs-compat.h"
-//__FBSDID("$FreeBSD: src/lib/msun/src/e_sinh.c,v 1.11 2011/10/21 06:28:47 das Exp $");
-
-/* __ieee754_sinh(x)
+/* sinh(x)
  * Method : 
  * mathematically sinh(x) if defined to be (exp(x)-exp(-x))/2
  *	1. Replace x by |x| (sinh(-x) = -sinh(x)). 
@@ -33,14 +29,14 @@
  */
 
 #include <float.h>
-#include <openlibm_math.h>
 
+#include "math.h"
 #include "math_private.h"
 
 static const double one = 1.0, shuge = 1.0e307;
 
-OLM_DLLEXPORT double
-__ieee754_sinh(double x)
+double
+sinh(double x)
 {
 	double t,h;
 	int32_t ix,jx;
@@ -64,7 +60,7 @@ __ieee754_sinh(double x)
 	}
 
     /* |x| in [22, log(maxdouble)] return 0.5*exp(|x|) */
-	if (ix < 0x40862E42)  return h*__ieee754_exp(fabs(x));
+	if (ix < 0x40862E42)  return h*exp(fabs(x));
 
     /* |x| in [log(maxdouble), overflowthresold] */
 	if (ix<=0x408633CE)
@@ -75,5 +71,5 @@ __ieee754_sinh(double x)
 }
 
 #if (LDBL_MANT_DIG == 53)
-openlibm_weak_reference(sinh, sinhl);
+__weak_reference(sinh, sinhl);
 #endif

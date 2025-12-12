@@ -1,5 +1,3 @@
-/* From: @(#)k_tan.c 1.5 04/04/22 SMI */
-
 /*
  * ====================================================
  * Copyright 2004 Sun Microsystems, Inc.  All Rights Reserved.
@@ -11,15 +9,11 @@
  * ====================================================
  */
 
-#include "cdefs-compat.h"
-//__FBSDID("$FreeBSD: src/lib/msun/ld128/k_tanl.c,v 1.1 2008/02/17 07:32:31 das Exp $");
-
 /*
  * ld128 version of k_tan.c.  See ../src/k_tan.c for most comments.
  */
 
-#include <openlibm_math.h>
-
+#include "math.h"
 #include "math_private.h"
 
 /*

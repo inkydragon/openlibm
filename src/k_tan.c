@@ -1,5 +1,3 @@
-/* @(#)k_tan.c 1.5 04/04/22 SMI */
-
 /*
  * ====================================================
  * Copyright 2004 Sun Microsystems, Inc.  All Rights Reserved.
@@ -9,10 +7,6 @@
  * is preserved.
  * ====================================================
  */
-
-/* INDENT OFF */
-#include "cdefs-compat.h"
-//__FBSDID("$FreeBSD: src/lib/msun/src/k_tan.c,v 1.13 2008/02/22 02:30:35 das Exp $");
 
 /* __kernel_tan( x, y, k )
  * kernel tan function on ~[-pi/4, pi/4] (except on -0), pi/4 ~ 0.7854
@@ -49,10 +43,8 @@
  *		       = 1 - 2*(tan(y) - (tan(y)^2)/(1+tan(y)))
  */
 
-#include <openlibm_math.h>
-
+#include "math.h"
 #include "math_private.h"
-
 static const double xxx[] = {
 		 3.33333333333334091986e-01,	/* 3FD55555, 55555563 */
 		 1.33333333333201242699e-01,	/* 3FC11111, 1110FE7A */

@@ -1,5 +1,4 @@
-/*	$OpenBSD: s_cpowf.c,v 1.2 2010/07/18 18:42:26 guenther Exp $	*/
-/*
+/*-
  * Copyright (c) 2008 Stephen L. Moshier <steve@moshier.net>
  *
  * Permission to use, copy, modify, and distribute this software for any
@@ -44,12 +43,11 @@
  *
  */
 
-#include <openlibm_complex.h>
-#include <openlibm_math.h>
-
+#include <complex.h>
+#include <math.h>
 #include "math_private.h"
 
-OLM_DLLEXPORT float complex
+float complex
 cpowf(float complex a, float complex z)
 {
 	float complex w;
@@ -59,7 +57,10 @@ cpowf(float complex a, float complex z)
 	y = cimagf(z);
 	absa = cabsf (a);
 	if (absa == 0.0f) {
-		return (0.0f + 0.0f * I);
+		if (x == 0 && y == 0)
+		    return (CMPLXF(1.f, 0.f));
+		else
+		    return (CMPLXF(0.f, 0.f));
 	}
 	arga = cargf (a);
 	r = powf (absa, x);
@@ -68,6 +69,6 @@ cpowf(float complex a, float complex z)
 		r = r * expf (-y * arga);
 		theta = theta + y * logf (absa);
 	}
-	w = r * cosf (theta) + (r * sinf (theta)) * I;
+	w = CMPLXF(r * cosf (theta), r * sinf (theta));
 	return (w);
 }

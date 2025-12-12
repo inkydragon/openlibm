@@ -1,4 +1,6 @@
 /*-
+ * SPDX-License-Identifier: BSD-2-Clause
+ *
  * Copyright (c) 2007 David Schultz <das@FreeBSD.ORG>
  * All rights reserved.
  *
@@ -24,36 +26,20 @@
  * SUCH DAMAGE.
  */
 
-#include "cdefs-compat.h"
-//__FBSDID("$FreeBSD: src/lib/msun/src/s_csqrt.c,v 1.4 2008/08/08 00:15:16 das Exp $");
-
+#include <complex.h>
 #include <float.h>
-#include <openlibm_complex.h>
-#include <openlibm_math.h>
+#include <math.h>
 
 #include "math_private.h"
 
-/*
- * gcc doesn't implement complex multiplication or division correctly,
- * so we need to handle infinities specially. We turn on this pragma to
- * notify conforming c99 compilers that the fast-but-incorrect code that
- * gcc generates is acceptable, since the special cases have already been
- * handled.
- */
-#ifndef __GNUC__
-#pragma	STDC CX_LIMITED_RANGE	ON
-#endif
-
-/* We risk spurious overflow for components >= DBL_MAX / (1 + sqrt(2)). */
+/* For avoiding overflow for components >= DBL_MAX / (1 + sqrt(2)). */
 #define	THRESH	0x1.a827999fcef32p+1022
 
-OLM_DLLEXPORT double complex
+double complex
 csqrt(double complex z)
 {
 	double complex result;
-	double a, b;
-	double t;
-	int scale;
+	double a, b, rx, ry, scale, t;
 
 	a = creal(z);
 	b = cimag(z);
@@ -65,7 +51,7 @@ csqrt(double complex z)
 		return (CMPLX(INFINITY, b));
 	if (isnan(a)) {
 		t = (b - b) / (b - b);	/* raise invalid if b is not a NaN */
-		return (CMPLX(a, t));	/* return NaN + NaN i */
+		return (CMPLX(a + 0.0L + t, a + 0.0L + t)); /* NaN + NaN i */
 	}
 	if (isinf(a)) {
 		/*
@@ -79,36 +65,48 @@ csqrt(double complex z)
 		else
 			return (CMPLX(a, copysign(b - b, b)));
 	}
-	/*
-	 * The remaining special case (b is NaN) is handled just fine by
-	 * the normal code path below.
-	 */
+	if (isnan(b)) {
+		t = (a - a) / (a - a);	/* raise invalid */
+		return (CMPLX(b + 0.0L + t, b + 0.0L + t)); /* NaN + NaN i */
+	}
 
 	/* Scale to avoid overflow. */
 	if (fabs(a) >= THRESH || fabs(b) >= THRESH) {
-		a *= 0.25;
-		b *= 0.25;
-		scale = 1;
+		/*
+		 * Don't scale a or b if this might give (spurious)
+		 * underflow.  Then the unscaled value is an equivalent
+		 * infinitesmal (or 0).
+		 */
+		if (fabs(a) >= 0x1p-1020)
+			a *= 0.25;
+		if (fabs(b) >= 0x1p-1020)
+			b *= 0.25;
+		scale = 2;
 	} else {
-		scale = 0;
+		scale = 1;
+	}
+
+	/* Scale to reduce inaccuracies when both components are denormal. */
+	if (fabs(a) < 0x1p-1022 && fabs(b) < 0x1p-1022) {
+		a *= 0x1p54;
+		b *= 0x1p54;
+		scale = 0x1p-27;
 	}
 
 	/* Algorithm 312, CACM vol 10, Oct 1967. */
 	if (a >= 0) {
 		t = sqrt((a + hypot(a, b)) * 0.5);
-		result = CMPLX(t, b / (2 * t));
+		rx = scale * t;
+		ry = scale * b / (2 * t);
 	} else {
 		t = sqrt((-a + hypot(a, b)) * 0.5);
-		result = CMPLX(fabs(b) / (2 * t), copysign(t, b));
+		rx = scale * fabs(b) / (2 * t);
+		ry = copysign(scale * t, b);
 	}
 
-	/* Rescale. */
-	if (scale)
-		return (result * 2);
-	else
-		return (result);
+	return (CMPLX(rx, ry));
 }
 
 #if LDBL_MANT_DIG == 53
-openlibm_weak_reference(csqrt, csqrtl);
+__weak_reference(csqrt, csqrtl);
 #endif

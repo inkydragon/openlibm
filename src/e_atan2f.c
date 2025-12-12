@@ -13,11 +13,7 @@
  * ====================================================
  */
 
-#include "cdefs-compat.h"
-//__FBSDID("$FreeBSD: src/lib/msun/src/e_atan2f.c,v 1.12 2008/08/03 17:39:54 das Exp $");
-
-#include <openlibm_math.h>
-
+#include "math.h"
 #include "math_private.h"
 
 static volatile float
@@ -30,8 +26,8 @@ pi      = 3.1415927410e+00; /* 0x40490fdb */
 static volatile float
 pi_lo   = -8.7422776573e-08; /* 0xb3bbbd2e */
 
-OLM_DLLEXPORT float
-__ieee754_atan2f(float y, float x)
+float
+atan2f(float y, float x)
 {
 	float z;
 	int32_t k,m,hx,hy,ix,iy;
@@ -42,7 +38,7 @@ __ieee754_atan2f(float y, float x)
 	iy = hy&0x7fffffff;
 	if((ix>0x7f800000)||
 	   (iy>0x7f800000))	/* x or y is NaN */
-	   return x+y;
+	    return nan_mix(x, y);
 	if(hx==0x3f800000) return atanf(y);   /* x=1.0 */
 	m = ((hy>>31)&1)|((hx>>30)&2);	/* 2*sign(x)+sign(y) */
 
